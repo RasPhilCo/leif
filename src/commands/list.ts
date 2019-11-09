@@ -1,10 +1,10 @@
-import { flags } from '@oclif/command'
+import {flags} from '@oclif/command'
 import ux from 'cli-ux'
 
 import Base from '../base'
 
 type Repo = {
-  name: string
+  name: string;
 }
 
 export default class List extends Base {
@@ -23,17 +23,17 @@ export default class List extends Base {
   }
 
   async run() {
-    const { flags } = this.parse(List)
+    const {flags} = this.parse(List)
 
     const keef = this.readConfig(flags.config)
     // console.log(keef); return
-    const { data } = await this.github.get<Repo[]>(`/orgs/${keef.org}/repos`)
+    const {data} = await this.github.get<Repo[]>(`/orgs/${keef.org}/repos`)
     // console.log(data)
     const repos = data.filter((r: Repo) => keef.repos.includes(r.name))
 
     ux.table(repos, {
       repo: {
-        get: (row: Repo) => row.name
+        get: (row: Repo) => row.name,
       },
     })
   }
