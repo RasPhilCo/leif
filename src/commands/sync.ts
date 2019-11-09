@@ -1,9 +1,11 @@
 import {flags} from '@oclif/command'
 import ux from 'cli-ux'
-import {exec} from 'child_process'
 import * as fs from 'fs-extra'
 
-import Base, {Repo} from '../base'
+import Base from '../base'
+import * as util from 'util'
+
+const exec = util.promisify(require('child_process').exec)
 
 export default class Sync extends Base {
   static description = 'sync repository being managed locally'
@@ -22,15 +24,24 @@ export default class Sync extends Base {
   async run() {
     const {flags} = this.parse(Sync)
     const keef = this.readConfig(flags.config)
-    const {data} = await this.github.get<Repo[]>(`/orgs/${keef.org}/repos`)
-    const repos = data.filter((r: Repo) => keef.repos.includes(r.name))
-    const localDir = `~/.keef/github/${keef.org}`
+    const accountName = keef.org || keef.user
+    const localDir = `${process.env.HOME}/.keef/github/${accountName}`
     await fs.ensureDir(localDir)
-    repos.forEach(repo => {
-      const repoName = repo.name
-      ux.action.start(`Syncing ${repoName}`)
-      exec(['git', 'clone', `https://github.com/${keef.org}/${repoName}`, `${localDir}/${repoName}`].join(' '))
-      ux.action.stop()
-    })
+
+    await Promise.all(keef.repos.map(async (repoName: string) => {
+      const localRepoDir = `${localDir}/${repoName}`
+      if (fs.existsSync(localRepoDir)) {
+        console.log(`Cleaning local repo ${repoName}...`)
+        await exec(`git -C ${localRepoDir} checkout master`)
+        await exec(`git -C ${localRepoDir} fetch --prune`)
+        await exec(`git -C ${localRepoDir} pull`)
+        await exec(`git -C ${localRepoDir} branch -vv | grep ': gone' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
+        await exec(`git -C ${localRepoDir} branch -vv | grep -vE 'origin/' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
+      } else {
+        ux.action.start(`Syncing ${repoName}`)
+        await exec(`git clone https://github.com/${accountName}/${repoName} ${localRepoDir}`)
+        ux.action.stop()
+      }
+    }))
   }
 }
