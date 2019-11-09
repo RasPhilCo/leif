@@ -29,3 +29,7 @@ export default abstract class extends Command {
     }
   }
 }
+
+export type Repo = {
+  name: string;
+}

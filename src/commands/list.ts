@@ -1,11 +1,7 @@
 import {flags} from '@oclif/command'
 import ux from 'cli-ux'
 
-import Base from '../base'
-
-type Repo = {
-  name: string;
-}
+import Base, {Repo} from '../base'
 
 export default class List extends Base {
   static description = 'list repository being managed'
