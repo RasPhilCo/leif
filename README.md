@@ -32,6 +32,7 @@ USAGE
 <!-- commands -->
 * [`keef hello [FILE]`](#keef-hello-file)
 * [`keef help [COMMAND]`](#keef-help-command)
+* [`keef list`](#keef-list)
 
 ## `keef hello [FILE]`
 
@@ -69,4 +70,18 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.1/src/commands/help.ts)_
+
+## `keef list`
+
+list repository being managed
+
+```
+USAGE
+  $ keef list
+
+OPTIONS
+  -c, --config=config  (required) path to a keef config file
+```
+
+_See code: [src/commands/list.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/list.ts)_
 <!-- commandsstop -->

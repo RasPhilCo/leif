@@ -1,0 +1,16 @@
+---
+org: oclif
+repos:
+  - oclif
+  - config
+  - command
+  - parser
+  - screen
+  - error
+  - cli-ux
+  - plugin-version
+  - plugin-not-found
+  - plugin-plugins
+  - plugin-help
+  - example-plugin-ts
+  - example-plugin-js
