@@ -23,7 +23,7 @@ class Syncronizer {
         await exec(`git -C ${localRepoDir} branch -vv | grep -vE 'origin/' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
       } else {
         ux.action.start(`Syncing ${repoName}`)
-        await exec(`git clone https://github.com/${accountName}/${repoName} ${localRepoDir}`)
+        await exec(`git clone git@github.com:${accountName}/${repoName}.git ${localRepoDir}`)
         ux.action.stop()
       }
       console.log('')
