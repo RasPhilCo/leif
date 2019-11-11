@@ -1,14 +1,14 @@
-keef
+leif
 ====
 
 multi-repo syncronization &amp; management tool
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/keef.svg)](https://npmjs.org/package/keef)
-[![CircleCI](https://circleci.com/gh/RasPhilCo/keef/tree/master.svg?style=shield)](https://circleci.com/gh/RasPhilCo/keef/tree/master)
-[![Codecov](https://codecov.io/gh/RasPhilCo/keef/branch/master/graph/badge.svg)](https://codecov.io/gh/RasPhilCo/keef)
-[![Downloads/week](https://img.shields.io/npm/dw/keef.svg)](https://npmjs.org/package/keef)
-[![License](https://img.shields.io/npm/l/keef.svg)](https://github.com/RasPhilCo/keef/blob/master/package.json)
+[![Version](https://img.shields.io/npm/v/leif.svg)](https://npmjs.org/package/leif)
+[![CircleCI](https://circleci.com/gh/RasPhilCo/leif/tree/master.svg?style=shield)](https://circleci.com/gh/RasPhilCo/leif/tree/master)
+[![Codecov](https://codecov.io/gh/RasPhilCo/leif/branch/master/graph/badge.svg)](https://codecov.io/gh/RasPhilCo/leif)
+[![Downloads/week](https://img.shields.io/npm/dw/leif.svg)](https://npmjs.org/package/leif)
+[![License](https://img.shields.io/npm/l/leif.svg)](https://github.com/RasPhilCo/leif/blob/master/package.json)
 
 <!-- toc -->
 * [Usage](#usage)
@@ -17,60 +17,60 @@ multi-repo syncronization &amp; management tool
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g keef
-$ keef COMMAND
+$ npm install -g leif
+$ leif COMMAND
 running command...
-$ keef (-v|--version|version)
-keef/0.0.0 darwin-x64 node-v12.13.0
-$ keef --help [COMMAND]
+$ leif (-v|--version|version)
+leif/0.0.0 darwin-x64 node-v12.13.0
+$ leif --help [COMMAND]
 USAGE
-  $ keef COMMAND
+  $ leif COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`keef assert`](#keef-assert)
-* [`keef cleanup`](#keef-cleanup)
-* [`keef help [COMMAND]`](#keef-help-command)
-* [`keef list`](#keef-list)
-* [`keef sync`](#keef-sync)
+* [`leif assert`](#leif-assert)
+* [`leif cleanup`](#leif-cleanup)
+* [`leif help [COMMAND]`](#leif-help-command)
+* [`leif list`](#leif-list)
+* [`leif sync`](#leif-sync)
 
-## `keef assert`
+## `leif assert`
 
-apply keef config to repositories
+apply leif config to repositories
 
 ```
 USAGE
-  $ keef assert
+  $ leif assert
 
 OPTIONS
-  -c, --config=config  (required) path to a keef config file
+  -c, --config=config  (required) path to a leif config file
 ```
 
-_See code: [src/commands/assert.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/assert.ts)_
+_See code: [src/commands/assert.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/assert.ts)_
 
-## `keef cleanup`
+## `leif cleanup`
 
 remove managed repos
 
 ```
 USAGE
-  $ keef cleanup
+  $ leif cleanup
 
 OPTIONS
-  -c, --config=config  (required) path to a keef config file
+  -c, --config=config  (required) path to a leif config file
 ```
 
-_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/cleanup.ts)_
+_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/cleanup.ts)_
 
-## `keef help [COMMAND]`
+## `leif help [COMMAND]`
 
-display help for keef
+display help for leif
 
 ```
 USAGE
-  $ keef help [COMMAND]
+  $ leif help [COMMAND]
 
 ARGUMENTS
   COMMAND  command to show help for
@@ -81,31 +81,31 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.1/src/commands/help.ts)_
 
-## `keef list`
+## `leif list`
 
 list repository being managed
 
 ```
 USAGE
-  $ keef list
+  $ leif list
 
 OPTIONS
-  -c, --config=config  (required) path to a keef config file
+  -c, --config=config  (required) path to a leif config file
 ```
 
-_See code: [src/commands/list.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/list.ts)_
+_See code: [src/commands/list.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/list.ts)_
 
-## `keef sync`
+## `leif sync`
 
 sync managage repos
 
 ```
 USAGE
-  $ keef sync
+  $ leif sync
 
 OPTIONS
-  -c, --config=config  (required) path to a keef config file
+  -c, --config=config  (required) path to a leif config file
 ```
 
-_See code: [src/commands/sync.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/sync.ts)_
+_See code: [src/commands/sync.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/sync.ts)_
 <!-- commandsstop -->

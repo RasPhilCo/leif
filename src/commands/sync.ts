@@ -16,19 +16,19 @@ export default class Sync extends Base {
   static flags = {
     config: flags.string({
       char: 'c',
-      description: 'path to a keef config file',
+      description: 'path to a leif config file',
       required: true,
     }),
   }
 
   async run() {
     const {flags} = this.parse(Sync)
-    const keef = this.readConfig(flags.config)
-    const accountName = keef.org || keef.user
-    const localDir = `${process.env.HOME}/.keef/github/${accountName}`
+    const leif = this.readConfig(flags.config)
+    const accountName = leif.org || leif.user
+    const localDir = `${process.env.HOME}/.leif/github/${accountName}`
     await fs.ensureDir(localDir)
 
-    await Promise.all(keef.repos.map(async (repoName: string) => {
+    await Promise.all(leif.repos.map(async (repoName: string) => {
       const localRepoDir = `${localDir}/${repoName}`
       if (fs.existsSync(localRepoDir)) {
         console.log(`Cleaning local repo ${repoName}...`)

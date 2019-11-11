@@ -4,7 +4,7 @@ import Base from '../base'
 import Sync from './sync'
 
 export default class Assert extends Base {
-  static description = 'apply keef config to repositories'
+  static description = 'apply leif config to repositories'
 
   static args = [
   ]
@@ -12,7 +12,7 @@ export default class Assert extends Base {
   static flags = {
     config: flags.string({
       char: 'c',
-      description: 'path to a keef config file',
+      description: 'path to a leif config file',
       required: true,
     }),
   }
@@ -20,7 +20,7 @@ export default class Assert extends Base {
   async run() {
     const {flags} = this.parse(Assert)
     await Sync.run(this.argv, this.config)
-    const keef = this.readConfig(flags.config)
-    await this.applyAssertions(keef.assert, keef.org ? keef.org : keef.user, keef.repos, keef.configDir)
+    const leif = this.readConfig(flags.config)
+    await this.applyAssertions(leif.assert, leif.org ? leif.org : leif.user, leif.repos, leif.configDir)
   }
 }

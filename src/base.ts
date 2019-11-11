@@ -30,7 +30,7 @@ abstract class AsserterBase {
   }
 
   protected get pathToLocalRepo() {
-    return `${process.env.HOME}/.keef/github/${this.repoFullname}`
+    return `${process.env.HOME}/.leif/github/${this.repoFullname}`
   }
 
   async run(): Promise<boolean> {
@@ -51,7 +51,7 @@ abstract class AsserterBase {
     }
     shasum.update(input)
     const assertionID = shasum.digest('hex').slice(0, 8)
-    const branchName = `keef-assert-${this.assertion.type}-${assertionID}`
+    const branchName = `leif-assert-${this.assertion.type}-${assertionID}`
 
     // 0.
     const [owner, repo] = this.repoFullname.split('/')
@@ -61,7 +61,7 @@ abstract class AsserterBase {
     })
     const pullReqExists = pullRequests.find((p: any) => p.head.ref === branchName)
     if (pullReqExists) {
-      console.log(`Keef has already pushed a PR for this assertion on branch ${branchName}...`)
+      console.log(`leif has already pushed a PR for this assertion on branch ${branchName}...`)
       console.log('Checking for changes...')
     }
 
@@ -92,7 +92,7 @@ abstract class AsserterBase {
     }
     // 4.
     await exec(`git -C ${workingDir} add --all`)
-    await exec(`git -C ${workingDir} commit -m "${this.prDescription}" -m "keef asserted state via keefconfig"`)
+    await exec(`git -C ${workingDir} commit -m "${this.prDescription}" -m "leif asserted state via leifconfig"`)
 
     // 5.
     await exec(`git -C ${workingDir} push origin ${branchName}`)
@@ -119,7 +119,7 @@ abstract class AsserterBase {
   }
 
   private get prDescription() {
-    return this.assertion.description || `keef ${this.assertion.type} assertion`
+    return this.assertion.description || `leif ${this.assertion.type} assertion`
   }
 }
 

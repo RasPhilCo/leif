@@ -1,12 +1,12 @@
 {
-  "name": "keef",
+  "name": "leif",
   "description": "multi-repo syncronization & management tool",
   "version": "0.0.0",
   "author": "RasPhilCo @RasPhilCo",
   "bin": {
-    "keef": "./bin/run"
+    "leif": "./bin/run"
   },
-  "bugs": "https://github.com/RasPhilCo/keef/issues",
+  "bugs": "https://github.com/RasPhilCo/leif/issues",
   "dependencies": {
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
@@ -42,7 +42,7 @@
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://github.com/RasPhilCo/keef",
+  "homepage": "https://github.com/RasPhilCo/leif",
   "keywords": [
     "oclif"
   ],
@@ -50,12 +50,12 @@
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
-    "bin": "keef",
+    "bin": "leif",
     "plugins": [
       "@oclif/plugin-help"
     ]
   },
-  "repository": "RasPhilCo/keef",
+  "repository": "RasPhilCo/leif",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "eslint . --ext .ts --config .eslintrc",

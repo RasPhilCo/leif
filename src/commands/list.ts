@@ -12,7 +12,7 @@ export default class List extends Base {
   static flags = {
     config: flags.string({
       char: 'c',
-      description: 'path to a keef config file',
+      description: 'path to a leif config file',
       required: true,
     }),
   }
@@ -20,8 +20,8 @@ export default class List extends Base {
   async run() {
     const {flags} = this.parse(List)
 
-    const keef = this.readConfig(flags.config)
-    const repos = keef.repos.map((r: string) => ({name: r}))
+    const leif = this.readConfig(flags.config)
+    const repos = leif.repos.map((r: string) => ({name: r}))
 
     ux.table(repos, {
       repo: {
