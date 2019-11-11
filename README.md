@@ -31,6 +31,7 @@ USAGE
 # Commands
 <!-- commands -->
 * [`keef assert`](#keef-assert)
+* [`keef cleanup`](#keef-cleanup)
 * [`keef help [COMMAND]`](#keef-help-command)
 * [`keef list`](#keef-list)
 * [`keef sync`](#keef-sync)
@@ -48,6 +49,20 @@ OPTIONS
 ```
 
 _See code: [src/commands/assert.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/assert.ts)_
+
+## `keef cleanup`
+
+remove managed repos
+
+```
+USAGE
+  $ keef cleanup
+
+OPTIONS
+  -c, --config=config  (required) path to a keef config file
+```
+
+_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/cleanup.ts)_
 
 ## `keef help [COMMAND]`
 
@@ -82,7 +97,7 @@ _See code: [src/commands/list.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/
 
 ## `keef sync`
 
-sync repository being managed locally
+sync managage repos
 
 ```
 USAGE

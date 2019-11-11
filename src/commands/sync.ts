@@ -8,7 +8,7 @@ import * as util from 'util'
 const exec = util.promisify(require('child_process').exec)
 
 export default class Sync extends Base {
-  static description = 'sync repository being managed locally'
+  static description = 'sync managage repos'
 
   static args = [
   ]
