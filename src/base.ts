@@ -146,7 +146,15 @@ class DependencyAsserter extends AsserterBase {
       }
 
       if (depsToUninstall && depsToUninstall.length > 0) {
-        await exec(`cd ${this.pathToLocalRepo}; yarn remove ${depsToUninstall.join('')}`)
+        try {
+          await exec(`cd ${this.pathToLocalRepo}; yarn remove ${depsToUninstall.join('')}`)
+        } catch (error) {
+          if (error.toString().match(/This module isn't specified in a manifest/)) {
+            // carry on
+          } else {
+            console.log(error)
+          }
+        }
       }
     }
   }
