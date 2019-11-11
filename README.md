@@ -45,6 +45,7 @@ USAGE
 
 OPTIONS
   -c, --config=config  (required) path to a leif config file
+  -d, --dry-run        see changes without implementing them
 ```
 
 _See code: [src/commands/assert.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/assert.ts)_

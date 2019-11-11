@@ -13,8 +13,17 @@ const GitHubClient = new Octokit({
   auth: process.env.GITHUB_OAUTH_TOKEN,
 })
 
+type AsserterOptions = {
+  assertion: any;
+  repoFullname: string;
+  configDir: string;
+  dryRun: boolean;
+}
+
 abstract class AsserterBase {
   protected assertion: any
+
+  protected dryRun: boolean
 
   protected configDir: string
 
@@ -22,18 +31,19 @@ abstract class AsserterBase {
 
   protected github: typeof GitHubClient
 
-  constructor(assertion: any, repoFullname: string, configDir = '.') {
+  constructor({assertion, configDir, dryRun, repoFullname}: AsserterOptions) {
     this.assertion = assertion
+    this.configDir = configDir
+    this.dryRun = dryRun
     this.repoFullname = repoFullname
     this.github = GitHubClient
-    this.configDir = configDir
   }
 
   protected get pathToLocalRepo() {
     return `${process.env.HOME}/.leif/github/${this.repoFullname}`
   }
 
-  async run(): Promise<boolean> {
+  async run(): Promise<(string | boolean)[]> {
     // 0. check if PR exists already
     // 1. create working branch (if it doesn't exit)
     // 2. do work
@@ -52,6 +62,8 @@ abstract class AsserterBase {
     shasum.update(input)
     const assertionID = shasum.digest('hex').slice(0, 8)
     const branchName = `leif-assert-${this.assertion.type}-${assertionID}`
+    console.log('==', this.prDescription)
+    console.log('====', this.repoFullname)
 
     // 0.
     const [owner, repo] = this.repoFullname.split('/')
@@ -88,8 +100,15 @@ abstract class AsserterBase {
         await exec(`git -C ${workingDir} checkout master`)
         await exec(`git -C ${workingDir} branch -D ${branchName} `)
       }
-      return true
+      return [repo, true]
     }
+
+    if (this.dryRun) {
+      exec(`git -C ${workingDir} checkout master`)
+      exec(`git -C ${workingDir} -d ${branchName}`)
+      return [repo, true]
+    }
+
     // 4.
     await exec(`git -C ${workingDir} add --all`)
     await exec(`git -C ${workingDir} commit -m "${this.prDescription}" -m "leif asserted state via leifconfig"`)
@@ -98,7 +117,7 @@ abstract class AsserterBase {
     await exec(`git -C ${workingDir} push origin ${branchName}`)
 
     // 6.0
-    if (pullReqExists) return true
+    if (pullReqExists) return [repo, true]
     try {
       await this.github.pulls.create({
         owner,
@@ -111,7 +130,7 @@ abstract class AsserterBase {
       console.log(error)
     }
 
-    return true
+    return [repo, true]
   }
 
   protected async uniqWork() {
@@ -190,43 +209,62 @@ class DependencyAsserter extends AsserterBase {
   }
 }
 
+type AssertionServiceOptions = {
+  assertion: any;
+  owner: string;
+  configDir: string;
+  dryRun: boolean;
+  repos: string[];
+}
+
 class AssertionService {
-  static async run(assertion: any, owner: string, repos: string[], configPath: string) {
+  static async run({assertion, owner, repos, configDir, dryRun}: AssertionServiceOptions) {
     console.log(`Running ${assertion.type} assertion...`)
 
     switch (assertion.type) {
     case 'dependency':
       return Promise.all(repos.map(async repo => {
-        const asserter = new DependencyAsserter(assertion, `${owner}/${repo}`)
+        const asserter = new DependencyAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun})
         return asserter.run()
       }))
     case 'json':
       return Promise.all(repos.map(async repo => {
-        const asserter = new JSONAsserter(assertion, `${owner}/${repo}`, configPath)
+        const asserter = new JSONAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun})
         return asserter.run()
       }))
     case 'file':
       return Promise.all(repos.map(async repo => {
-        const asserter = new FileAsserter(assertion, `${owner}/${repo}`, configPath)
+        const asserter = new FileAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun})
         return asserter.run()
       }))
     default:
       console.log(`Skipping ${assertion.type} assertion...`)
-      return [true]
     }
   }
 }
 
+type ApplyAssertionsOptions = {
+  assertions: any[];
+  owner: string;
+  configDir: string;
+  dryRun: boolean;
+  repos: string[];
+}
+
 export default abstract class extends Command {
-  protected async applyAssertions(assertions: any[], owner: string, repos: string[], configDir: string) {
+  protected async applyAssertions({assertions, owner, repos, configDir, dryRun}: ApplyAssertionsOptions) {
     for (const assertion of assertions) {
       // eslint-disable-next-line no-await-in-loop
-      const output = await AssertionService.run(assertion, owner, repos, configDir)
-      console.log(output)
+      const outputs = await AssertionService.run({assertion, owner, repos, configDir, dryRun})
+      console.log('== assertion summary')
+      outputs?.forEach(o => {
+        console.log(o[0], ':', o[1])
+      })
+      console.log('')
     }
 
-    // weird state to-do to fix:
-    // remote branch, no PR, no local changes.
+    // weird state to fix:
+    // remote branch present, no PR in github, no local changes/wd clean.
   }
 
   protected readConfig(file: string) {

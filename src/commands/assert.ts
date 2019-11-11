@@ -1,13 +1,38 @@
 import {flags} from '@oclif/command'
-
+import * as fs from 'fs-extra'
+import ux from 'cli-ux'
 import Base from '../base'
-import Sync from './sync'
+import * as util from 'util'
+
+const exec = util.promisify(require('child_process').exec)
+
+class Syncronizer {
+  static async run(leif: any) {
+    const accountName = leif.org || leif.user
+    const localDir = `${process.env.HOME}/.leif/github/${accountName}`
+    await fs.ensureDir(localDir)
+
+    await Promise.all(leif.repos.map(async (repoName: string) => {
+      const localRepoDir = `${localDir}/${repoName}`
+      if (fs.existsSync(localRepoDir)) {
+        console.log(`Cleaning local repo ${repoName}...`)
+        await exec(`git -C ${localRepoDir} checkout master`)
+        await exec(`git -C ${localRepoDir} fetch --prune`)
+        await exec(`git -C ${localRepoDir} pull`)
+        await exec(`git -C ${localRepoDir} branch -vv | grep ': gone' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
+        await exec(`git -C ${localRepoDir} branch -vv | grep -vE 'origin/' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
+      } else {
+        ux.action.start(`Syncing ${repoName}`)
+        await exec(`git clone https://github.com/${accountName}/${repoName} ${localRepoDir}`)
+        ux.action.stop()
+      }
+      console.log('')
+    }))
+  }
+}
 
 export default class Assert extends Base {
   static description = 'apply leif config to repositories'
-
-  static args = [
-  ]
 
   static flags = {
     config: flags.string({
@@ -15,12 +40,22 @@ export default class Assert extends Base {
       description: 'path to a leif config file',
       required: true,
     }),
+    'dry-run': flags.boolean({
+      char: 'd',
+      description: 'see output without implementing state',
+    }),
   }
 
   async run() {
     const {flags} = this.parse(Assert)
-    await Sync.run(this.argv, this.config)
     const leif = this.readConfig(flags.config)
-    await this.applyAssertions(leif.assert, leif.org ? leif.org : leif.user, leif.repos, leif.configDir)
+    await Syncronizer.run(leif)
+    await this.applyAssertions({
+      assertions: leif.assert,
+      owner: leif.org ? leif.org : leif.user,
+      repos: leif.repos,
+      configDir: leif.configDir,
+      dryRun: flags['dry-run'],
+    })
   }
 }
