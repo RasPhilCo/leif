@@ -78,6 +78,7 @@ abstract class AsserterBase {
     }
 
     // 1.
+    await exec(`git -C ${workingDir} checkout master`) // branch from master
     try {
       await exec(`git -C ${workingDir} checkout ${branchName}`)
     } catch (error) {
