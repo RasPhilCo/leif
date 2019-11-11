@@ -128,17 +128,25 @@ class FileAsserter extends AsserterBase {
 class DependencyAsserter extends AsserterBase {
   protected async uniqWork() {
     const depsToInstall = this.assertion.dependencies
-    const devDepsToInstall = this.assertion.devDependencies
+    const devToInstall = this.assertion.dev_dependencies
+    const depsToUninstall = this.assertion.removed
+
     if (this.assertion.manager === 'yarn') {
       if (!fs.existsSync(path.join(this.pathToLocalRepo, 'package.json'))) {
         console.log('No package.json file found, skipping...')
         return
       }
+
       if (depsToInstall && depsToInstall.length > 0) {
-        await exec(`cd  ${this.pathToLocalRepo}; yarn add ${depsToInstall.join('')}`)
+        await exec(`cd ${this.pathToLocalRepo}; yarn add ${depsToInstall.join('')}`)
       }
-      if (devDepsToInstall && devDepsToInstall.length > 0) {
-        await exec(`yarn add ${devDepsToInstall.join('')} --dev --cwd ${this.pathToLocalRepo}`)
+
+      if (devToInstall && devToInstall.length > 0) {
+        await exec(`cd ${this.pathToLocalRepo}; yarn add ${devToInstall.join('')} --dev`)
+      }
+
+      if (depsToUninstall && depsToUninstall.length > 0) {
+        await exec(`cd ${this.pathToLocalRepo}; yarn remove ${depsToUninstall.join('')}`)
       }
     }
   }
