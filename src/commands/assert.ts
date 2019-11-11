@@ -21,9 +21,6 @@ export default class Assert extends Base {
     const {flags} = this.parse(Assert)
     await Sync.run(this.argv, this.config)
     const keef = this.readConfig(flags.config)
-    const assertions = keef.assert
-    assertions.forEach(assertion => {
-      this.applyAssertion(assertion, keef.org ? keef.org : keef.user, keef.repos)
-    })
+    await this.applyAssertions(keef.assert, keef.org ? keef.org : keef.user, keef.repos)
   }
 }

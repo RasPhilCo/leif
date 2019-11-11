@@ -2,10 +2,10 @@ import {Command} from '@oclif/command'
 import * as crypto from 'crypto'
 import * as path from 'path'
 import * as util from 'util'
+import * as Octokit from '@octokit/rest'
 
 const fs = require('fs-extra')
 const yaml = require('js-yaml')
-const Octokit = require('@octokit/rest')
 
 const exec = util.promisify(require('child_process').exec)
 
@@ -26,11 +26,11 @@ abstract class AsserterBase {
     this.github = GitHubClient
   }
 
-  protected pathToLocalRepo(repoFullname: string) {
-    return `${process.env.HOME}/.keef/github/${repoFullname}`
+  protected get pathToLocalRepo() {
+    return `${process.env.HOME}/.keef/github/${this.repoFullname}`
   }
 
-  async run() {
+  async run(): Promise<boolean> {
     // 0. check if PR exists already
     // 1. create working branch (if it doesn't exit)
     // 2. do work
@@ -40,7 +40,7 @@ abstract class AsserterBase {
     // 6. create PR
 
     // prework
-    const workingDir = `${this.pathToLocalRepo(this.repoFullname)}`
+    const workingDir = `${this.pathToLocalRepo}`
     const shasum = crypto.createHash('sha1')
     let input = JSON.stringify(this.assertion)
     if (this.assertion.type === 'file') {
@@ -56,7 +56,7 @@ abstract class AsserterBase {
       owner,
       repo,
     })
-    const pullReqExists = pullRequests.find(p => p.head.ref === branchName)
+    const pullReqExists = pullRequests.find((p: any) => p.head.ref === branchName)
     if (pullReqExists) {
       console.log(`Keef has already pushed a PR for this assertion on branch ${branchName}...`)
       console.log('Checking for changes...')
@@ -85,56 +85,97 @@ abstract class AsserterBase {
         await exec(`git -C ${workingDir} checkout master`)
         await exec(`git -C ${workingDir} branch -D ${branchName} `)
       }
-      return
+      return true
     }
     // 4.
     await exec(`git -C ${workingDir} add --all`)
-    await exec(`git -C ${workingDir} commit -m "${this.assertion.description}" -m "keef asserted state via keefconfig"`)
+    await exec(`git -C ${workingDir} commit -m "${this.prDescription}" -m "keef asserted state via keefconfig"`)
 
     // 5.
     await exec(`git -C ${workingDir} push origin ${branchName}`)
 
-    // 6.
-    if (pullReqExists) return
-    this.github.pulls.create({
-      owner,
-      repo,
-      title: this.assertion.description,
-      head: branchName,
-      base: 'master',
-    })
+    // 6.0
+    if (pullReqExists) return true
+    try {
+      await this.github.pulls.create({
+        owner,
+        repo,
+        title: this.prDescription,
+        head: branchName,
+        base: 'master',
+      })
+    } catch (error) {
+      console.log(error)
+    }
+
+    return true
   }
 
   protected async uniqWork() {
     // not implemented
   }
+
+  private get prDescription() {
+    return this.assertion.description || `keef ${this.assertion.type} assertion`
+  }
 }
 
 class FileAsserter extends AsserterBase {
   protected async uniqWork() {
-    await fs.copy(this.assertion.source, path.join(`${this.pathToLocalRepo(this.repoFullname)}`, this.assertion.target))
+    await fs.copy(this.assertion.source, path.join(`${this.pathToLocalRepo}`, this.assertion.target))
+  }
+}
+class DependencyAsserter extends AsserterBase {
+  protected async uniqWork() {
+    const depsToInstall = this.assertion.dependencies
+    const devDepsToInstall = this.assertion.devDependencies
+    if (this.assertion.manager === 'yarn') {
+      if (!fs.existsSync(path.join(this.pathToLocalRepo, 'package.json'))) {
+        console.log('No package.json file found, skipping...')
+        return
+      }
+      if (depsToInstall && depsToInstall.length > 0) {
+        await exec(`cd  ${this.pathToLocalRepo}; yarn add ${depsToInstall.join('')}`)
+      }
+      if (devDepsToInstall && devDepsToInstall.length > 0) {
+        await exec(`yarn add ${devDepsToInstall.join('')} --dev --cwd ${this.pathToLocalRepo}`)
+      }
+    }
   }
 }
 
 class AssertionService {
-  static run(assertion: any, owner: string, repos: string[]) {
+  static async run(assertion: any, owner: string, repos: string[]) {
     switch (assertion.type) {
+    case 'dependency':
+      return Promise.all(repos.map(async repo => {
+        const asserter = new DependencyAsserter(assertion, `${owner}/${repo}`)
+        console.log(`Running ${assertion.type} assertion...`)
+        return asserter.run()
+      }))
     case 'file':
-      repos.forEach(async repo => {
+      return Promise.all(repos.map(async repo => {
         const asserter = new FileAsserter(assertion, `${owner}/${repo}`)
         console.log(`Running ${assertion.type} assertion...`)
-        await asserter.run()
-      })
-      break
+        return asserter.run()
+      }))
     default:
       console.log(`Skipping ${assertion.type} assertion...`)
+      return [true]
     }
   }
 }
 
 export default abstract class extends Command {
-  protected applyAssertion(assertion: any, owner: string, repos: string[]) {
-    AssertionService.run(assertion, owner, repos)
+  protected async applyAssertions(assertions: any[], owner: string, repos: string[]) {
+    for (const assertion of assertions) {
+      // eslint-disable-next-line no-await-in-loop
+      const output = await AssertionService.run(assertion, owner, repos)
+      console.log(output)
+    }
+
+    // weird state to-do to fix:
+    // remote branch, no PR, no local changes.
   }
 
   protected readConfig(file: string) {
