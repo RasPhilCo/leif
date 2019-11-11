@@ -34,7 +34,6 @@ USAGE
 * [`leif cleanup`](#leif-cleanup)
 * [`leif help [COMMAND]`](#leif-help-command)
 * [`leif list`](#leif-list)
-* [`leif sync`](#leif-sync)
 
 ## `leif assert`
 
@@ -94,18 +93,4 @@ OPTIONS
 ```
 
 _See code: [src/commands/list.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/list.ts)_
-
-## `leif sync`
-
-sync managage repos
-
-```
-USAGE
-  $ leif sync
-
-OPTIONS
-  -c, --config=config  (required) path to a leif config file
-```
-
-_See code: [src/commands/sync.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/sync.ts)_
 <!-- commandsstop -->
