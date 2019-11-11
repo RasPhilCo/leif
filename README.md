@@ -21,7 +21,7 @@ $ npm install -g keef
 $ keef COMMAND
 running command...
 $ keef (-v|--version|version)
-keef/0.0.0 darwin-x64 node-v10.9.0
+keef/0.0.0 darwin-x64 node-v12.13.0
 $ keef --help [COMMAND]
 USAGE
   $ keef COMMAND
@@ -30,29 +30,24 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`keef hello [FILE]`](#keef-hello-file)
+* [`keef assert`](#keef-assert)
 * [`keef help [COMMAND]`](#keef-help-command)
 * [`keef list`](#keef-list)
+* [`keef sync`](#keef-sync)
 
-## `keef hello [FILE]`
+## `keef assert`
 
-describe the command here
+apply keef config to repositories
 
 ```
 USAGE
-  $ keef hello [FILE]
+  $ keef assert
 
 OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
-
-EXAMPLE
-  $ keef hello
-  hello world from ./src/hello.ts!
+  -c, --config=config  (required) path to a keef config file
 ```
 
-_See code: [src/commands/hello.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/hello.ts)_
+_See code: [src/commands/assert.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/assert.ts)_
 
 ## `keef help [COMMAND]`
 
@@ -84,4 +79,18 @@ OPTIONS
 ```
 
 _See code: [src/commands/list.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/list.ts)_
+
+## `keef sync`
+
+sync repository being managed locally
+
+```
+USAGE
+  $ keef sync
+
+OPTIONS
+  -c, --config=config  (required) path to a keef config file
+```
+
+_See code: [src/commands/sync.ts](https://github.com/RasPhilCo/keef/blob/v0.0.0/src/commands/sync.ts)_
 <!-- commandsstop -->
