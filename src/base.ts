@@ -106,7 +106,7 @@ abstract class AsserterBase {
 
     if (this.dryRun) {
       exec(`git -C ${workingDir} checkout master`)
-      exec(`git -C ${workingDir} -d ${branchName}`)
+      exec(`git -C ${workingDir} branch -d ${branchName}`)
       return [repo, true]
     }
 
