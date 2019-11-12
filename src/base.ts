@@ -13,8 +13,25 @@ const GitHubClient = new Octokit({
   auth: process.env.GITHUB_OAUTH_TOKEN,
 })
 
+let sequenceIndex = 0
+let sequenceID = 0
+let sequenceLength = 0
+
+const branchIDCreater = (assertion: any, configDir: string): string => {
+  const shasum = crypto.createHash('sha1')
+  let input = JSON.stringify(assertion)
+  if (assertion.type === 'file' || assertion.type === 'json') {
+    input += fs.readFileSync(path.join(configDir, assertion.source)).toString()
+  }
+  shasum.update(input)
+  const assertionID = shasum.digest('hex').slice(0, 8)
+  const branchName = `leif-assert-${assertion.type}-${assertionID}`
+  return branchName
+}
+
 type AsserterOptions = {
   assertion: any;
+  branchName?: string;
   repoFullname: string;
   configDir: string;
   dryRun: boolean;
@@ -22,6 +39,8 @@ type AsserterOptions = {
 
 abstract class AsserterBase {
   protected assertion: any
+
+  protected branchName?: string
 
   protected dryRun: boolean
 
@@ -31,8 +50,9 @@ abstract class AsserterBase {
 
   protected github: typeof GitHubClient
 
-  constructor({assertion, configDir, dryRun, repoFullname}: AsserterOptions) {
+  constructor({assertion, configDir, dryRun, repoFullname, branchName}: AsserterOptions) {
     this.assertion = assertion
+    this.branchName = branchName
     this.configDir = configDir
     this.dryRun = dryRun
     this.repoFullname = repoFullname
@@ -54,16 +74,10 @@ abstract class AsserterBase {
 
     // prework
     const workingDir = `${this.pathToLocalRepo}`
-    const shasum = crypto.createHash('sha1')
-    let input = JSON.stringify(this.assertion)
-    if (this.assertion.type === 'file' || this.assertion.type === 'json') {
-      input += fs.readFileSync(path.join(this.configDir, this.assertion.source)).toString()
-    }
-    shasum.update(input)
-    const assertionID = shasum.digest('hex').slice(0, 8)
-    const branchName = `leif-assert-${this.assertion.type}-${assertionID}`
+    const branchName = this.branchName || branchIDCreater(this.assertion, this.configDir)
     console.log('==', this.prDescription)
     console.log('====', this.repoFullname)
+    console.log(branchName)
 
     // 0.
     const [owner, repo] = this.repoFullname.split('/')
@@ -81,6 +95,7 @@ abstract class AsserterBase {
     await exec(`git -C ${workingDir} checkout master`) // branch from master
     try {
       await exec(`git -C ${workingDir} checkout ${branchName}`)
+      console.log('checking out', branchName)
     } catch (error) {
       if (error.toString().match(/did not match/)) {
         await exec(`git -C ${workingDir} checkout -b ${branchName}`)
@@ -99,20 +114,20 @@ abstract class AsserterBase {
       if (!pullReqExists) {
         // if working dir clean & no PR, then clean up
         await exec(`git -C ${workingDir} checkout master`)
-        await exec(`git -C ${workingDir} branch -D ${branchName} `)
+        if (!sequenceID) await exec(`git -C ${workingDir} branch -D ${branchName} `)
       }
-      return [repo, true]
-    }
-
-    if (this.dryRun) {
-      exec(`git -C ${workingDir} checkout master`)
-      exec(`git -C ${workingDir} branch -d ${branchName}`)
       return [repo, true]
     }
 
     // 4.
     await exec(`git -C ${workingDir} add --all`)
     await exec(`git -C ${workingDir} commit -m "${this.prDescription}" -m "leif asserted state via leifconfig"`)
+
+    if (this.dryRun) {
+      await exec(`git -C ${workingDir} checkout master`)
+      if (!sequenceID) await exec(`git -C ${workingDir} branch -D ${branchName}`)
+      return [repo, true]
+    }
 
     // 5.
     await exec(`git -C ${workingDir} push origin ${branchName}`)
@@ -139,7 +154,8 @@ abstract class AsserterBase {
   }
 
   private get prDescription() {
-    return this.assertion.description || `leif ${this.assertion.type} assertion`
+    const sequenceDescription = sequenceID > 0 && 'leif sequence assertion'
+    return sequenceDescription || this.assertion.description || `leif ${this.assertion.type} assertion`
   }
 }
 
@@ -188,16 +204,16 @@ class DependencyAsserter extends AsserterBase {
       }
 
       if (depsToInstall && depsToInstall.length > 0) {
-        await exec(`cd ${this.pathToLocalRepo}; yarn add ${depsToInstall.join('')}`)
+        await exec(`cd ${this.pathToLocalRepo}; yarn add ${depsToInstall.join(' ')}`)
       }
 
       if (devToInstall && devToInstall.length > 0) {
-        await exec(`cd ${this.pathToLocalRepo}; yarn add ${devToInstall.join('')} --dev`)
+        await exec(`cd ${this.pathToLocalRepo}; yarn add ${devToInstall.join(' ')} --dev`)
       }
 
       if (depsToUninstall && depsToUninstall.length > 0) {
         try {
-          await exec(`cd ${this.pathToLocalRepo}; yarn remove ${depsToUninstall.join('')}`)
+          await exec(`cd ${this.pathToLocalRepo}; yarn remove ${depsToUninstall.join(' ')}`)
         } catch (error) {
           if (error.toString().match(/This module isn't specified in a/)) {
             // carry on
@@ -216,26 +232,27 @@ type AssertionServiceOptions = {
   configDir: string;
   dryRun: boolean;
   repos: string[];
+  branchName?: string;
 }
 
 class AssertionService {
-  static async run({assertion, owner, repos, configDir, dryRun}: AssertionServiceOptions) {
+  static async run({assertion, owner, repos, configDir, dryRun, branchName}: AssertionServiceOptions) {
     console.log(`Running ${assertion.type} assertion...`)
 
     switch (assertion.type) {
     case 'dependency':
       return Promise.all(repos.map(async repo => {
-        const asserter = new DependencyAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun})
+        const asserter = new DependencyAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun, branchName})
         return asserter.run()
       }))
     case 'json':
       return Promise.all(repos.map(async repo => {
-        const asserter = new JSONAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun})
+        const asserter = new JSONAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun, branchName})
         return asserter.run()
       }))
     case 'file':
       return Promise.all(repos.map(async repo => {
-        const asserter = new FileAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun})
+        const asserter = new FileAsserter({assertion, repoFullname: `${owner}/${repo}`, configDir, dryRun, branchName})
         return asserter.run()
       }))
     default:
@@ -250,18 +267,53 @@ type ApplyAssertionsOptions = {
   configDir: string;
   dryRun: boolean;
   repos: string[];
+  branchName?: string;
+}
+
+type ApplySequencesOptions = {
+  sequences: any[];
+  owner: string;
+  configDir: string;
+  dryRun: boolean;
+  repos: string[];
 }
 
 export default abstract class extends Command {
-  protected async applyAssertions({assertions, owner, repos, configDir, dryRun}: ApplyAssertionsOptions) {
+  protected async applyAssertions({assertions, owner, repos, configDir, dryRun, branchName}: ApplyAssertionsOptions) {
+    if (branchName) sequenceLength = assertions.length
+
     for (const assertion of assertions) {
+      if (branchName) sequenceID = 1 - ((sequenceIndex + 1) / sequenceLength)
       // eslint-disable-next-line no-await-in-loop
-      const outputs = await AssertionService.run({assertion, owner, repos, configDir, dryRun})
+      const outputs = await AssertionService.run({assertion, owner, repos, configDir, dryRun, branchName})
       console.log('== assertion summary')
-      outputs?.forEach(o => {
+      outputs?.forEach((o: any[]) => {
         console.log(o[0], ':', o[1])
       })
       console.log('')
+      if (branchName) sequenceIndex++
+    }
+
+    sequenceLength = 0 // eslint-disable-line require-atomic-updates
+    sequenceID = 0 // eslint-disable-line require-atomic-updates
+    sequenceIndex = 0 // eslint-disable-line require-atomic-updates
+
+    // weird state to fix:
+    // remote branch present, no PR in github, no local changes/wd clean.
+  }
+
+  protected async applySequences({sequences, owner, repos, configDir, dryRun}: ApplySequencesOptions) {
+    for (const seq of sequences) {
+      const branchName = branchIDCreater(seq, configDir)
+
+      this.applyAssertions({
+        assertions: seq.assert,
+        owner,
+        repos,
+        configDir,
+        dryRun,
+        branchName,
+      })
     }
 
     // weird state to fix:

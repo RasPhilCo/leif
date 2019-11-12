@@ -50,8 +50,19 @@ export default class Assert extends Base {
     const {flags} = this.parse(Assert)
     const leif = this.readConfig(flags.config)
     await Syncronizer.run(leif)
+    const assertions = leif.assert.filter((a: { type: string }) => a.type !== 'sequence')
+    const sequences = leif.assert.filter((a: { type: string }) => a.type === 'sequence')
+
     await this.applyAssertions({
-      assertions: leif.assert,
+      assertions,
+      owner: leif.org ? leif.org : leif.user,
+      repos: leif.repos,
+      configDir: leif.configDir,
+      dryRun: flags['dry-run'],
+    })
+
+    await this.applySequences({
+      sequences,
       owner: leif.org ? leif.org : leif.user,
       repos: leif.repos,
       configDir: leif.configDir,
