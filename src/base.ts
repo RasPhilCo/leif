@@ -172,7 +172,11 @@ abstract class AsserterBase {
 
 class FileAsserter extends AsserterBase {
   protected async uniqWork() {
-    await fs.copy(path.join(this.configDir, this.assertion.source), path.join(this.workingDir, this.assertion.target))
+    if (this.assertion.source) {
+      await fs.copy(path.join(this.configDir, this.assertion.source), path.join(this.workingDir, this.assertion.target))
+    } else {
+      await fs.remove(path.join(this.workingDir, this.assertion.target))
+    }
   }
 }
 class JSONAsserter extends AsserterBase {
