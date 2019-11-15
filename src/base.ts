@@ -77,7 +77,7 @@ abstract class AsserterBase {
 
   async run(): Promise<(string | boolean)[]> {
     // 0. check if PR exists already
-    // 1. create working branch (if it doesn't exit)
+    // 1. create working branch (if it doesn't exist)
     // 2. do work
     // 3. check if work created changes
     // 4. if changes, commit changes
@@ -117,21 +117,44 @@ abstract class AsserterBase {
 
     // 3.
     const {stdout} = await exec(`git -C ${this.workingDir} status`)
+    // git diff --name-status master
+
     if (stdout.toString().match(/nothing to commit, working tree clean/)) {
+      // if working dir clean
       tabLog(5, 'Working directory clean, no changes to push...')
-      if (!pullReqExists) {
-        // if working dir clean & no PR, then clean up
-        await exec(`git -C ${this.workingDir} checkout master`)
-        if (!this.sequence.running || this.sequence.last) await exec(`git -C ${this.workingDir} branch -D ${this.branchName} `)
-      }
-    }
-
-    // 4.
-    await exec(`git -C ${this.workingDir} add --all`)
-    await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "leif asserted state via leifconfig"`)
-
-    if (this.dryRun) {
+      // hop back to master
       await exec(`git -C ${this.workingDir} checkout master`)
+      if (!this.sequence.running) {
+        // if not a sequence, clean up and exit
+        await exec(`git -C ${this.workingDir} branch -D ${this.branchName} `)
+        return [repo, true]
+      }
+      if (!this.sequence.last) {
+        // if sequence & not last
+        // don't clean branch but exit
+        return [repo, true]
+      }
+    } else {
+      // 4.
+      await exec(`git -C ${this.workingDir} add --all`)
+      await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "leif asserted state via leifconfig"`)
+    }
+    // work is done, return to master
+    await exec(`git -C ${this.workingDir} checkout master`)
+
+    // *********
+    // we should only reach here if:
+    // 1.) we just made a commit to the working branch in step 3
+    // OR
+    // 2.) we're in a sequence and this is the last assertion in step 3
+    // *********
+
+    // bail on --dry-run for ALL scenarios
+    // but also delete working branch
+    // 1) if not in a sequence (i.e. the end)
+    // OR
+    // 2) or last in a sequence (i.e. the end)
+    if (this.dryRun) {
       if (!this.sequence.running || this.sequence.last) await exec(`git -C ${this.workingDir} branch -D ${this.branchName}`)
       return [repo, true]
     }
@@ -158,7 +181,7 @@ abstract class AsserterBase {
   }
 
   protected async uniqWork() {
-    // not implemented
+    // not implemented==
   }
 
   private get prDescription() {
@@ -255,9 +278,10 @@ class AssertionService {
   static async run({assertion, owner, repos, configDir, dryRun, branchName, sequence}: AssertionServiceOptions) {
     console.log(`> Running ${assertion.type} assertion`)
 
+    const summary = []
     switch (assertion.type) {
     case 'dependency':
-      return Promise.all(repos.map(async repo => {
+      for (const repo of repos) {
         const asserter = new DependencyAsserter({
           assertion,
           repoFullname: `${owner}/${repo}`,
@@ -266,10 +290,13 @@ class AssertionService {
           branchName,
           sequence,
         })
-        return asserter.run()
-      }))
+        // eslint-disable-next-line no-await-in-loop
+        const result = await asserter.run()
+        summary.push(result)
+      }
+      break
     case 'json':
-      return Promise.all(repos.map(async repo => {
+      for (const repo of repos) {
         const asserter = new JSONAsserter({
           assertion,
           repoFullname: `${owner}/${repo}`,
@@ -278,10 +305,13 @@ class AssertionService {
           branchName,
           sequence,
         })
-        return asserter.run()
-      }))
+        // eslint-disable-next-line no-await-in-loop
+        const result = await asserter.run()
+        summary.push(result)
+      }
+      break
     case 'file':
-      return Promise.all(repos.map(async repo => {
+      for (const repo of repos) {
         const asserter = new FileAsserter({
           assertion,
           repoFullname: `${owner}/${repo}`,
@@ -290,11 +320,15 @@ class AssertionService {
           branchName,
           sequence,
         })
-        return asserter.run()
-      }))
+        // eslint-disable-next-line no-await-in-loop
+        const result = await asserter.run()
+        summary.push(result)
+      }
+      break
     default:
       console.log(`Skipping ${assertion.type} assertion...`)
     }
+    return summary
   }
 }
 
@@ -354,8 +388,10 @@ export default abstract class extends Command {
 
   protected async applySequences({sequences, owner, repos, configDir, dryRun}: ApplySequencesOptions) {
     for (const seq of sequences) {
+      if (!this.validateSequence(seq)) return
       console.log('Running sequence assertions...')
-      this.applyAssertions({
+      // eslint-disable-next-line no-await-in-loop
+      await this.applyAssertions({
         assertions: seq.assert,
         owner,
         repos,
@@ -382,5 +418,10 @@ export default abstract class extends Command {
     } catch (error) {
       console.log(error)
     }
+  }
+
+  private validateSequence(seq: {type: string; assert: any[]}): boolean {
+    if (seq.type && seq.assert) return true
+    return false
   }
 }

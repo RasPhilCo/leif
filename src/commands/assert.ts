@@ -26,8 +26,8 @@ class Syncronizer {
         await exec(`git clone git@github.com:${accountName}/${repoName}.git ${localRepoDir}`)
         ux.action.stop()
       }
-      console.log('')
     }))
+    console.log('')
   }
 }
 
@@ -52,14 +52,7 @@ export default class Assert extends Base {
     await Syncronizer.run(leif)
     const assertions = leif.assert.filter((a: { type: string }) => a.type !== 'sequence')
     const sequences = leif.assert.filter((a: { type: string }) => a.type === 'sequence')
-
-    await this.applyAssertions({
-      assertions,
-      owner: leif.org ? leif.org : leif.user,
-      repos: leif.repos,
-      configDir: leif.configDir,
-      dryRun: flags['dry-run'],
-    })
+    sequences.push(assertions)
 
     await this.applySequences({
       sequences,
