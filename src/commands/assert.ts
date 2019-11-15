@@ -31,6 +31,20 @@ class Syncronizer {
   }
 }
 
+interface Assertion {
+  type: string;
+}
+
+interface Sequence extends Assertion {
+  type: 'sequence';
+  assert: Assertion[];
+}
+
+interface Schema {
+  version: string;
+  assert: (Assertion | Sequence)[];
+}
+
 export default class Assert extends Base {
   static description = 'apply leif config to repositories'
 
@@ -39,6 +53,11 @@ export default class Assert extends Base {
       char: 'c',
       description: 'path to a leif config file',
       required: true,
+    }),
+    schema: flags.string({
+      char: 's',
+      description: 'assert schema version only',
+      multiple: true,
     }),
     'dry-run': flags.boolean({
       char: 'd',
@@ -50,10 +69,19 @@ export default class Assert extends Base {
     const {flags} = this.parse(Assert)
     const leif = this.readConfig(flags.config)
     await Syncronizer.run(leif)
-    const assertions = leif.assert.filter((a: { type: string }) => a.type !== 'sequence')
-    const sequences = leif.assert.filter((a: { type: string }) => a.type === 'sequence')
-    sequences.push(assertions)
 
+    const sequences: Sequence[] = []
+    let schemas: Schema[] = leif.schema
+    if (flags.schema) {
+      schemas = leif.schema.filter((s: Schema) => !s.version || flags.schema.includes(String(s.version)))
+    }
+    for (const schema of schemas) {
+      const {singleSequence, sequences: seq} = this.seperateSequences(schema.assert)
+      sequences.push(...seq)
+      sequences.push(singleSequence)
+    }
+
+    // console.log(JSON.stringify(sequences, null, 2)); return
     await this.applySequences({
       sequences,
       owner: leif.org ? leif.org : leif.user,
@@ -61,5 +89,11 @@ export default class Assert extends Base {
       configDir: leif.configDir,
       dryRun: flags['dry-run'],
     })
+  }
+
+  private seperateSequences(assertions: (Assertion|Sequence)[]) {
+    const singleSequence = assertions.filter((a: Assertion|Sequence) => a.type !== 'sequence') as Assertion[]
+    const sequences = assertions.filter((a: Assertion | Sequence) => a.type === 'sequence') as Sequence[]
+    return {singleSequence: {type: 'sequence', assert: singleSequence} as Sequence, sequences}
   }
 }
