@@ -31,6 +31,21 @@ class Syncronizer {
   }
 }
 
+type Assertion = {
+  type: 'dependency' | 'file' | 'json' | 'sequence';
+  assert?: Assertion[];
+}
+
+type Sequence = {
+  type?: 'sequence';
+  assert: Assertion[];
+}
+
+type Schema = {
+  version: string;
+  assert: Assertion|Sequence[];
+}
+
 export default class Assert extends Base {
   static description = 'apply leif config to repositories'
 
@@ -44,16 +59,37 @@ export default class Assert extends Base {
       char: 'd',
       description: 'see output without implementing state',
     }),
+    schema: flags.string({
+      char: 's',
+      description: 'apply a particular schema',
+    }),
   }
 
   async run() {
     const {flags} = this.parse(Assert)
     const leif = this.readConfig(flags.config)
-    await Syncronizer.run(leif)
-    const assertions = leif.assert.filter((a: { type: string }) => a.type !== 'sequence')
-    const sequences = leif.assert.filter((a: { type: string }) => a.type === 'sequence')
-    sequences.push(assertions)
+    // await Syncronizer.run(leif)
 
+    let sequences: Sequence[] = []
+
+    sequences = leif.assert.filter((a: Assertion) => a.type === 'sequence')
+    console.log(sequences)
+    const assertions = leif.assert.filter((a: Assertion) => a.type !== 'sequence')
+    if (assertions) sequences.push({
+      assert: assertions,
+    })
+
+    // if (leif.schema) {
+    //   sequences = leif.schema
+    //   if (flags.schema) {
+    //     const matchedSchema = sequences.find((s: Sequence) => String(s.version) === flags.schema)
+    //     sequences.push(matchedSchema)
+    //   }
+    //   sequences = sequences.map(s => s.assert)
+    // }
+
+    console.log(JSON.stringify(sequences, null, 2))
+    return
     await this.applySequences({
       sequences,
       owner: leif.org ? leif.org : leif.user,

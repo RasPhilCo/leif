@@ -389,7 +389,15 @@ export default abstract class extends Command {
   protected async applySequences({sequences, owner, repos, configDir, dryRun}: ApplySequencesOptions) {
     for (const seq of sequences) {
       if (!this.validateSequence(seq)) return
-      console.log('Running sequence assertions...')
+
+      let branchName
+      let runAsSequence
+      if (seq.type === 'sequence') {
+        console.log('Running sequence assertions...')
+        branchName = branchNameAndIDCreater(seq, configDir)
+        runAsSequence = true
+      }
+
       // eslint-disable-next-line no-await-in-loop
       await this.applyAssertions({
         assertions: seq.assert,
@@ -397,8 +405,8 @@ export default abstract class extends Command {
         repos,
         configDir,
         dryRun,
-        branchName: branchNameAndIDCreater(seq, configDir),
-        runAsSequence: true,
+        branchName,
+        runAsSequence,
       })
     }
 
