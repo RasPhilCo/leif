@@ -29,21 +29,54 @@ const branchNameAndIDCreater = (assertion: any, configDir: string): string => {
   return branchName
 }
 
-type AsserterSequenceOptions = {
-  running: boolean;
-  first?: boolean;
-  last?: boolean;
-  current?: number;
-  max?: number;
+type AsserterSequenceMetastate = {
+  first: boolean;
+  last: boolean;
+  current: number;
+  length: number;
 };
 
-type AsserterOptions = {
-  assertion: any;
+export interface Assertion {
+  type: string;
+  repos_to_apply?: string[];
+}
+
+export interface Sequence extends Assertion {
+  type: 'sequence';
+  assert: Assertion[];
+}
+
+type AsserterServiceConfig = {
+  assertion: Assertion;
   branchName?: string;
   repoFullname: string;
   configDir: string;
   dryRun: boolean;
-  sequence: AsserterSequenceOptions;
+  sequence: AsserterSequenceMetastate;
+}
+
+type AssertionRunnerConfig = {
+  assertion: Assertion;
+  owner: string;
+  configDir: string;
+  dryRun: boolean;
+  branchName?: string;
+  sequence: AsserterSequenceMetastate;
+}
+
+type ApplySequenceAssertionsConfig = {
+  assertions: Assertion[];
+  owner: string;
+  configDir: string;
+  dryRun: boolean;
+  branchName?: string;
+}
+
+type ApplySequencesConfig = {
+  sequences: Sequence[];
+  owner: string;
+  configDir: string;
+  dryRun: boolean;
 }
 
 abstract class AsserterBase {
@@ -59,9 +92,9 @@ abstract class AsserterBase {
 
   protected github: typeof GitHubClient
 
-  protected sequence: AsserterSequenceOptions
+  protected sequence: AsserterSequenceMetastate
 
-  constructor({assertion, configDir, dryRun, repoFullname, branchName, sequence}: AsserterOptions) {
+  constructor({assertion, configDir, dryRun, repoFullname, branchName, sequence}: AsserterServiceConfig) {
     this.assertion = assertion
     this.branchName = branchName || branchNameAndIDCreater(assertion, configDir)
     this.configDir = configDir
@@ -124,8 +157,8 @@ abstract class AsserterBase {
       tabLog(5, 'Working directory clean, no changes to push...')
       // hop back to master
       await exec(`git -C ${this.workingDir} checkout master`)
-      if (!this.sequence.running) {
-        // if not a sequence, clean up and exit
+      if (this.sequence.length === 0) {
+        // if not a multi-assertion sequence, clean up and exit
         await exec(`git -C ${this.workingDir} branch -D ${this.branchName} `)
         return [repo, true]
       }
@@ -155,7 +188,7 @@ abstract class AsserterBase {
     // OR
     // 2) or last in a sequence (i.e. the end)
     if (this.dryRun) {
-      if (!this.sequence.running || this.sequence.last) await exec(`git -C ${this.workingDir} branch -D ${this.branchName}`)
+      if (this.sequence.length > 0 || this.sequence.last) await exec(`git -C ${this.workingDir} branch -D ${this.branchName}`)
       return [repo, true]
     }
 
@@ -163,7 +196,7 @@ abstract class AsserterBase {
     await exec(`git -C ${this.workingDir} push origin ${this.branchName}`)
 
     // 6.0
-    if (pullReqExists || (this.sequence.running && !this.sequence.last)) return [repo, true]
+    if (pullReqExists || (this.sequence.length > 0 && !this.sequence.last)) return [repo, true]
     try {
       tabLog(5, 'creating PR...')
       await this.github.pulls.create({
@@ -185,7 +218,7 @@ abstract class AsserterBase {
   }
 
   private get prDescription() {
-    return (this.sequence.running && 'leif sequence assertion') || this.assertion.description || `leif ${this.assertion.type} assertion`
+    return (this.sequence.length > 0 && 'leif sequence assertion') || this.assertion.description || `leif ${this.assertion.type} assertion`
   }
 
   private get commitDescription() {
@@ -264,19 +297,10 @@ class DependencyAsserter extends AsserterBase {
   }
 }
 
-type AssertionServiceOptions = {
-  assertion: any;
-  owner: string;
-  configDir: string;
-  dryRun: boolean;
-  repos: string[];
-  branchName?: string;
-  sequence: AsserterSequenceOptions;
-}
-
-class AssertionService {
-  static async run({assertion, owner, repos, configDir, dryRun, branchName, sequence}: AssertionServiceOptions) {
+class MultiRepoAssertionRunner {
+  static async run({assertion, owner, configDir, dryRun, branchName, sequence}: AssertionRunnerConfig) {
     console.log(`> Running ${assertion.type} assertion`)
+    const repos = assertion.repos_to_apply!
 
     const summary = []
     switch (assertion.type) {
@@ -332,50 +356,28 @@ class AssertionService {
   }
 }
 
-type ApplyAssertionsOptions = {
-  assertions: any[];
-  owner: string;
-  configDir: string;
-  dryRun: boolean;
-  repos: string[];
-  branchName?: string;
-  runAsSequence?: boolean;
-}
-
-type ApplySequencesOptions = {
-  sequences: any[];
-  owner: string;
-  configDir: string;
-  dryRun: boolean;
-  repos: string[];
-}
-
 export default abstract class extends Command {
-  protected async applyAssertions({assertions, owner, repos, configDir, dryRun, branchName, runAsSequence = false}: ApplyAssertionsOptions) {
-    const sequence: AsserterSequenceOptions = {
-      running: runAsSequence,
-    }
+  protected async applySequenceAssertions({assertions, owner, configDir, dryRun, branchName}: ApplySequenceAssertionsConfig) {
     const sequenceLength = assertions.length
+    const sequence: any = {
+      length: sequenceLength,
+    }
 
     for (let i = 0; i < sequenceLength; i++) {
-      if (runAsSequence) {
-        sequence.current = i + 1
-        sequence.max = sequenceLength
-        sequence.first = i + 1 === 1
-        sequence.last = i + 1 === sequenceLength
-      }
+      sequence.current = i + 1
+      sequence.first = i + 1 === 1
+      sequence.last = i + 1 === sequenceLength
       const assertion = assertions[i]
       // eslint-disable-next-line no-await-in-loop
-      const outputs = await AssertionService.run({
+      const outputs = await MultiRepoAssertionRunner.run({
         assertion,
         owner,
-        repos,
         configDir,
         dryRun,
         branchName,
         sequence,
       })
-      console.log('Assertion summary')
+      console.log('== assertion summary')
       outputs?.forEach((o: any[]) => {
         tabLog(2, o[0], ':', o[1])
       })
@@ -386,19 +388,17 @@ export default abstract class extends Command {
     // remote branch present, no PR in github, no local changes/wd clean.
   }
 
-  protected async applySequences({sequences, owner, repos, configDir, dryRun}: ApplySequencesOptions) {
+  protected async applySequences({sequences, owner, configDir, dryRun}: ApplySequencesConfig) {
     for (const seq of sequences) {
       if (!this.validateSequence(seq)) return
       console.log('Running sequence assertions...')
       // eslint-disable-next-line no-await-in-loop
-      await this.applyAssertions({
+      await this.applySequenceAssertions({
         assertions: seq.assert,
         owner,
-        repos,
         configDir,
         dryRun,
         branchName: branchNameAndIDCreater(seq, configDir),
-        runAsSequence: true,
       })
     }
 
@@ -425,3 +425,5 @@ export default abstract class extends Command {
     return false
   }
 }
+
+// (Schema | Assertion | Sequence)[] => Sequence(Assetions)[] => applySequences => applyAssertions

@@ -1,18 +1,19 @@
 import {flags} from '@oclif/command'
 import * as fs from 'fs-extra'
 import ux from 'cli-ux'
-import Base from '../base'
+import Base, {Assertion, Sequence} from '../base'
 import * as util from 'util'
 
 const exec = util.promisify(require('child_process').exec)
 
 class Syncronizer {
-  static async run(leif: any) {
-    const accountName = leif.org || leif.user
+  static async run(config: {org?: string; user?: string; repos: string[]}) {
+    const accountName = config.org || config.user
     const localDir = `${process.env.HOME}/.leif/github/${accountName}`
     await fs.ensureDir(localDir)
+    // console.log(repos); return
 
-    await Promise.all(leif.repos.map(async (repoName: string) => {
+    await Promise.all(config.repos.map(async (repoName: string) => {
       const localRepoDir = `${localDir}/${repoName}`
       if (fs.existsSync(localRepoDir)) {
         console.log(`Cleaning local repo ${repoName}...`)
@@ -29,15 +30,6 @@ class Syncronizer {
     }))
     console.log('')
   }
-}
-
-interface Assertion {
-  type: string;
-}
-
-interface Sequence extends Assertion {
-  type: 'sequence';
-  assert: Assertion[];
 }
 
 interface Schema {
@@ -71,21 +63,32 @@ export default class Assert extends Base {
     await Syncronizer.run(leif)
 
     const sequences: Sequence[] = []
-    let schemas: Schema[] = leif.schema
-    if (flags.schema) {
-      schemas = leif.schema.filter((s: Schema) => !s.version || flags.schema.includes(String(s.version)))
-    }
+    const schemas: (Schema| Sequence | Assertion)[] = leif.schema
     for (const schema of schemas) {
-      const {singleSequence, sequences: seq} = this.seperateSequences(schema.assert)
-      sequences.push(...seq)
-      sequences.push(singleSequence)
+      if (!(schema as Schema).version) {
+        if ((schema as Assertion).type === 'sequence') {
+          sequences.push(schema as Sequence)
+          continue
+        }
+        sequences.push({assert: [schema as Assertion], type: 'sequence'})
+        continue
+      }
+      const {singleSequence, sequences: seqs} = this.seperateSequences((schema as Schema).assert)
+      const addSchemaProps = (schema: Schema, sequence: Sequence) => (Object.assign({...schema}, sequence))
+      sequences.push(addSchemaProps(schema as Schema, singleSequence))
+      sequences.push(...seqs.map(s => addSchemaProps(schema as Schema, s)))
     }
 
+    sequences.forEach((s: Sequence) => {
+      s.assert.forEach((a: Assertion) => {
+        a.repos_to_apply = leif.repos
+      })
+    })
     // console.log(JSON.stringify(sequences, null, 2)); return
+
     await this.applySequences({
       sequences,
       owner: leif.org ? leif.org : leif.user,
-      repos: leif.repos,
       configDir: leif.configDir,
       dryRun: flags['dry-run'],
     })
