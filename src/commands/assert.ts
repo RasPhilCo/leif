@@ -41,16 +41,16 @@ export default class Assert extends Base {
   static description = 'apply leif config to repositories'
 
   static flags = {
-    config: flags.string({
+    schema: flags.string({
       char: 'c',
-      description: 'path to a leif config file',
+      description: 'path to a leif schema file',
       required: true,
     }),
-    schema: flags.string({
-      char: 's',
-      description: 'assert schema version only',
-      multiple: true,
-    }),
+    // version: flags.string({
+    //   char: 'v',
+    //   description: 'assert given schema version only',
+    //   multiple: true,
+    // }),
     'dry-run': flags.boolean({
       char: 'd',
       description: 'see output without implementing state',
@@ -59,11 +59,29 @@ export default class Assert extends Base {
 
   async run() {
     const {flags} = this.parse(Assert)
-    const leif = this.readConfig(flags.config)
+    const leif = this.readConfig(flags.schema)
     await Syncronizer.run(leif)
 
+    const sequences = this.constructSequences(leif)
+    // console.log(JSON.stringify(sequences, null, 2)); return
+
+    await this.applySequences({
+      sequences,
+      owner: leif.org ? leif.org : leif.user,
+      configDir: leif.configDir,
+      dryRun: flags['dry-run'],
+    })
+  }
+
+  private seperateSequences(assertions: (Assertion|Sequence)[]) {
+    const singleSequence = assertions.filter((a: Assertion|Sequence) => a.type !== 'sequence') as Assertion[]
+    const sequences = assertions.filter((a: Assertion | Sequence) => a.type === 'sequence') as Sequence[]
+    return {singleSequence: {type: 'sequence', assert: singleSequence} as Sequence, sequences}
+  }
+
+  private constructSequences(leif: any) {
     const sequences: Sequence[] = []
-    const schemas: (Schema| Sequence | Assertion)[] = leif.schema
+    const schemas: (Schema | Sequence | Assertion)[] = leif.schema || []
     for (const schema of schemas) {
       if (!(schema as Schema).version) {
         if ((schema as Assertion).type === 'sequence') {
@@ -84,19 +102,7 @@ export default class Assert extends Base {
         a.repos_to_apply = leif.repos
       })
     })
-    // console.log(JSON.stringify(sequences, null, 2)); return
 
-    await this.applySequences({
-      sequences,
-      owner: leif.org ? leif.org : leif.user,
-      configDir: leif.configDir,
-      dryRun: flags['dry-run'],
-    })
-  }
-
-  private seperateSequences(assertions: (Assertion|Sequence)[]) {
-    const singleSequence = assertions.filter((a: Assertion|Sequence) => a.type !== 'sequence') as Assertion[]
-    const sequences = assertions.filter((a: Assertion | Sequence) => a.type === 'sequence') as Sequence[]
-    return {singleSequence: {type: 'sequence', assert: singleSequence} as Sequence, sequences}
+    return sequences
   }
 }

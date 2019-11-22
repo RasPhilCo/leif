@@ -109,6 +109,7 @@ abstract class AsserterBase {
   }
 
   async run(): Promise<(string | boolean)[]> {
+    // console.log(this.sequence.length, this.sequence.current, this.sequence.first, this.sequence.last)
     // 0. check if PR exists already
     // 1. create working branch (if it doesn't exist)
     // 2. do work
@@ -135,11 +136,11 @@ abstract class AsserterBase {
     await exec(`git -C ${this.workingDir} checkout master`) // branch from master
     try {
       await exec(`git -C ${this.workingDir} checkout ${this.branchName}`)
-      tabLog(5, 'checking out branch', this.branchName)
+      tabLog(5, 'Checking out branch', this.branchName)
     } catch (error) {
       if (error.toString().match(/did not match/)) {
         await exec(`git -C ${this.workingDir} checkout -b ${this.branchName}`)
-        tabLog(5, 'creating branch', this.branchName)
+        tabLog(5, 'Creating branch', this.branchName)
       } else {
         throw new Error('Error creating a working branch')
       }
@@ -157,7 +158,7 @@ abstract class AsserterBase {
       tabLog(5, 'Working directory clean, no changes to push...')
       // hop back to master
       await exec(`git -C ${this.workingDir} checkout master`)
-      if (this.sequence.length === 0) {
+      if (this.sequence.length === 1) {
         // if not a multi-assertion sequence, clean up and exit
         await exec(`git -C ${this.workingDir} branch -D ${this.branchName} `)
         return [repo, true]
@@ -171,6 +172,7 @@ abstract class AsserterBase {
       // 4.
       await exec(`git -C ${this.workingDir} add --all`)
       await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "leif asserted state via leifconfig"`)
+      tabLog(5, 'Commiting changes to branch...')
     }
     // work is done, return to master
     await exec(`git -C ${this.workingDir} checkout master`)
@@ -188,17 +190,18 @@ abstract class AsserterBase {
     // OR
     // 2) or last in a sequence (i.e. the end)
     if (this.dryRun) {
-      if (this.sequence.length > 0 || this.sequence.last) await exec(`git -C ${this.workingDir} branch -D ${this.branchName}`)
+      if (this.sequence.last) await exec(`git -C ${this.workingDir} branch -D ${this.branchName}`)
       return [repo, true]
     }
 
     // 5.
     await exec(`git -C ${this.workingDir} push origin ${this.branchName}`)
+    tabLog(5, 'Pushing branch to GitHub...')
 
     // 6.0
-    if (pullReqExists || (this.sequence.length > 0 && !this.sequence.last)) return [repo, true]
+    if (pullReqExists || !this.sequence.last) return [repo, true]
     try {
-      tabLog(5, 'creating PR...')
+      tabLog(5, 'Creating PR...')
       await this.github.pulls.create({
         owner,
         repo,
@@ -218,7 +221,7 @@ abstract class AsserterBase {
   }
 
   private get prDescription() {
-    return (this.sequence.length > 0 && 'leif sequence assertion') || this.assertion.description || `leif ${this.assertion.type} assertion`
+    return (this.sequence.length > 1 && 'leif sequence assertion') || this.assertion.description || `leif ${this.assertion.type} assertion`
   }
 
   private get commitDescription() {
@@ -351,6 +354,7 @@ class MultiRepoAssertionRunner {
       break
     default:
       console.log(`Skipping ${assertion.type} assertion...`)
+      console.log(assertion)
     }
     return summary
   }
