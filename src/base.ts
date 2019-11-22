@@ -410,7 +410,7 @@ export default abstract class extends Command {
     // remote branch present, no PR in github, no local changes/wd clean.
   }
 
-  protected readConfig(file: string) {
+  protected readLeifYaml(file: string) {
     const configPath = path.join(process.cwd(), file)
     const configDir = configPath.replace(file.split('/')[file.split('/').length - 1], '')
     try {

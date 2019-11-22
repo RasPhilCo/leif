@@ -3,6 +3,7 @@ import * as fs from 'fs-extra'
 import ux from 'cli-ux'
 import Base, {Assertion, Sequence} from '../base'
 import * as util from 'util'
+import * as path from 'path'
 
 const exec = util.promisify(require('child_process').exec)
 
@@ -59,7 +60,8 @@ export default class Assert extends Base {
 
   async run() {
     const {flags} = this.parse(Assert)
-    const leif = this.readConfig(flags.schema)
+    const leif = this.readLeifYaml(flags.schema)
+    if (leif.config) this.assignConfig(leif, flags.schema)
     await Syncronizer.run(leif)
 
     const sequences = this.constructSequences(leif)
@@ -104,5 +106,13 @@ export default class Assert extends Base {
     })
 
     return sequences
+  }
+
+  private assignConfig(leif: any, schema: string) {
+    const bits = schema.split('/')
+    const bobs = bits.length > 1 ? bits.slice(0, bits.length - 1) : []
+    const configPath = path.join(...bobs, leif.config)
+    const config = this.readLeifYaml(configPath)
+    return Object.assign(leif, config)
   }
 }
