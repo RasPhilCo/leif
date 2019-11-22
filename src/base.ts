@@ -195,11 +195,11 @@ abstract class AsserterBase {
 
 class FileAsserter extends AsserterBase {
   protected async uniqWork() {
-    if (this.assertion.source) {
-      await fs.copy(path.join(this.configDir, this.assertion.source), path.join(this.workingDir, this.assertion.target))
-    } else {
+    if (this.assertion.remove) {
       await fs.remove(path.join(this.workingDir, this.assertion.target))
+      return
     }
+    await fs.copy(path.join(this.configDir, this.assertion.source), path.join(this.workingDir, this.assertion.target))
   }
 }
 class JSONAsserter extends AsserterBase {
@@ -233,7 +233,7 @@ class DependencyAsserter extends AsserterBase {
   protected async uniqWork() {
     const depsToInstall = this.assertion.dependencies
     const devToInstall = this.assertion.dev_dependencies
-    const depsToUninstall = this.assertion.removed
+    const depsToUninstall = this.assertion.remove
 
     if (this.assertion.manager === 'yarn') {
       if (!fs.existsSync(path.join(this.workingDir, 'package.json'))) {
