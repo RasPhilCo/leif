@@ -40,7 +40,7 @@ abstract class AsserterBase {
     await exec(`git -C ${this.workingDir} checkout master`) // branch from master
     try {
       await exec(`git -C ${this.workingDir} checkout ${this.branchName}`)
-      indentLog(6, 'Checking out branch', this.branchName)
+      indentLog(6, `Checking out branch ${this.branchName}...`)
     } catch (error) {
       if (error.toString().match(/did not match/)) {
         await exec(`git -C ${this.workingDir} checkout -b ${this.branchName}`)

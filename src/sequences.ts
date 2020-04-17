@@ -58,7 +58,7 @@ export default class SequenceService {
     const pullReqExists = pullRequests.find((p: any) => p.head.ref === branchName)
     if (pullReqExists) {
       indentLog(6, `leif has already pushed a PR for this assertion on branch ${branchName}...`)
-      indentLog(6, 'Checking for changes...')
+      indentLog(6, 'But checking for changes...')
     }
 
     // 1. & 2. & 3. & 4.
