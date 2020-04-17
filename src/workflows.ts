@@ -5,8 +5,10 @@ import SequenceService from './sequences'
 
 export const exec = util.promisify(require('child_process').exec)
 
-export const tabLog = (spaces: number, ...logline: string[]) => {
-  console.log(`${''.padEnd(spaces)}${logline.join(' ')}`)
+export const indentLog = (spaces: number, ...loglines: string[]) => {
+  loglines.forEach(line => {
+    console.log(`${''.padEnd(spaces)}${line}`)
+  })
 }
 
 class RepoService {

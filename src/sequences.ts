@@ -1,16 +1,10 @@
 import * as util from 'util'
 import * as Octokit from '@octokit/rest'
 
-import {Leif} from './workflows'
+import {Leif, indentLog} from './workflows'
 import {AsserterLookup} from './asserters'
 
 const exec = util.promisify(require('child_process').exec)
-
-const indentLog = (spaces: number, ...loglines: string[]) => {
-  loglines.forEach(line => {
-    console.log(`${''.padEnd(spaces)}${line}`)
-  })
-}
 
 const GitHubClient = new Octokit({
   auth: process.env.GITHUB_OAUTH_TOKEN,
@@ -51,6 +45,7 @@ export default class SequenceService {
     const prDescription = sequence.description || `leif sequence ${sequence.id}`
     const branchName = sequence.id
     const dryRun = sequence.dryRun
+    let changes = false
 
     indentLog(4, repoFullName)
 
@@ -66,19 +61,8 @@ export default class SequenceService {
       indentLog(6, 'Checking for changes...')
     }
 
-    // 1.
-    await exec(`git -C ${workingDir} checkout master`) // branch from master
-    try {
-      await exec(`git -C ${workingDir} checkout ${branchName}`)
-      indentLog(6, 'Checking out branch', branchName)
-    } catch (error) {
-      if (error.toString().match(/did not match/)) {
-        await exec(`git -C ${workingDir} checkout -b ${branchName}`)
-        indentLog(6, `Creating branch ${branchName}...`)
-      } else {
-        throw new Error('Error creating a working branch')
-      }
-    }
+    // 1. & 2. & 3. & 4.
+    // moved inside asserter service
 
     const meta: any = {
       length: sequenceLength,
@@ -102,6 +86,7 @@ export default class SequenceService {
       })
       // eslint-disable-next-line no-await-in-loop
       await asserter.run()
+      changes = asserter.changes
     }
 
     // bail on --dry-run for ALL scenarios
@@ -122,15 +107,17 @@ export default class SequenceService {
     // 5.
     const {stdout} = await exec(`git -C ${workingDir} diff ${branchName} origin/master --name-only`)
     if (stdout) {
-      await exec(`git -C ${workingDir} push origin ${branchName}`)
-      indentLog(6, `Pushing branch ${branchName} to GitHub...`)
+      if (changes) {
+        await exec(`git -C ${workingDir} push origin ${branchName}`)
+        indentLog(6, `Pushing branch ${branchName} to GitHub...`)
+      }
     } else {
       indentLog(6, `Deleting empty branch ${branchName}...`)
       await exec(`git -C ${workingDir} branch -D ${branchName} `)
     }
 
     // 6.0
-    if (pullReqExists || !meta.last) return
+    if (pullReqExists || !meta.last) return indentLog(0, '')
     try {
       indentLog(6, 'Creating PR...')
       await GitHubClient.pulls.create({

@@ -1,6 +1,6 @@
 import * as path from 'path'
 import * as fs from 'fs-extra'
-import {exec, tabLog} from './workflows'
+import {exec, indentLog} from './workflows'
 
 export interface AsserterServiceConfig {
   assertion: {apply_only_to_repos: string[]};
@@ -11,6 +11,8 @@ export interface AsserterServiceConfig {
 }
 
 abstract class AsserterBase {
+  public changes = false
+
   protected assertion: any
 
   protected branchName: string
@@ -34,6 +36,20 @@ abstract class AsserterBase {
   }
 
   async run() {
+    // 1.
+    await exec(`git -C ${this.workingDir} checkout master`) // branch from master
+    try {
+      await exec(`git -C ${this.workingDir} checkout ${this.branchName}`)
+      indentLog(6, 'Checking out branch', this.branchName)
+    } catch (error) {
+      if (error.toString().match(/did not match/)) {
+        await exec(`git -C ${this.workingDir} checkout -b ${this.branchName}`)
+        indentLog(6, `Creating branch ${this.branchName}...`)
+      } else {
+        throw new Error('Error creating a working branch')
+      }
+    }
+
     // 2.
     await this.uniqWork()
 
@@ -41,12 +57,13 @@ abstract class AsserterBase {
     const {stdout} = await exec(`git -C ${this.workingDir} status`)
     if (stdout.toString().match(/nothing to commit, working tree clean/)) {
       // if working dir clean
-      tabLog(8, 'Working directory clean, no changes to push...')
+      indentLog(8, 'Working directory clean, no changes to push...')
     } else {
+      this.changes = true
       // 4.
       await exec(`git -C ${this.workingDir} add --all`)
       await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "leif asserted state via leifyaml"`)
-      tabLog(8, `Commiting changes to branch ${this.branchName}...`)
+      indentLog(8, `Commiting changes to branch ${this.branchName}...`)
     }
 
     // work is done, return to master
