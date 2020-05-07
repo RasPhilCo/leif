@@ -85,7 +85,7 @@ export class FileExactMatchAsserter extends AsserterBase {
   }
 }
 
-export class FileNotPresentAsserter extends AsserterBase {
+export class FileDoesNotExistAsserter extends AsserterBase {
   protected async uniqWork() {
     await fs.remove(path.join(this.workingDir, this.assertion.target_relative_filepath))
   }
@@ -155,7 +155,7 @@ export class NodeDependencyAsserter extends AsserterBase {
 
 export const AsserterLookup: { [key: string]: any } = {
   'file-is-exact': FileExactMatchAsserter,
-  'file-not-present': FileNotPresentAsserter,
+  'file-does-not-exist': FileDoesNotExistAsserter,
   'json-assign': JSONAssignAsserter,
   'dependency-node': NodeDependencyAsserter,
 }
