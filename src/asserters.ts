@@ -88,7 +88,7 @@ export class FileDoesNotExistAsserter extends AsserterBase {
   }
 }
 
-export class JSONAssignAsserter extends AsserterBase {
+export class JsonHasPropertiesAsserter extends AsserterBase {
   protected async uniqWork() {
     const sourceJSON = require(path.join(this.templateDir, this.assertion.source_relative_filepath))
     const deepAssign = (target: any, source: any) => {
@@ -153,6 +153,6 @@ export class NodeDependencyAsserter extends AsserterBase {
 export const AsserterLookup: { [key: string]: any } = {
   'file-is-exact': FileExactMatchAsserter,
   'file-does-not-exist': FileDoesNotExistAsserter,
-  'json-assign': JSONAssignAsserter,
+  'json-has-properties': JsonHasPropertiesAsserter,
   'dependency-node': NodeDependencyAsserter,
 }
