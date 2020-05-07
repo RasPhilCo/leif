@@ -11,11 +11,17 @@ export const indentLog = (spaces: number, ...loglines: string[]) => {
   })
 }
 
+const syncProcessArray = async (array: any[], fn: (x: any) => void) => {
+  for (let i = 0; i < array.length; i++) {
+    // eslint-disable-next-line no-await-in-loop
+    await fn(array[i])
+  }
+  return Promise.resolve()
+}
+
 class RepoService {
   static async runMany(repos: string[]) {
-    await Promise.all(repos.map(async (repo: string) => {
-      await RepoService.run(repo)
-    }))
+    await syncProcessArray(repos, RepoService.run)
     console.log('')
   }
 
