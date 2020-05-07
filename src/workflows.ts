@@ -46,7 +46,7 @@ export default class WorkflowService {
 
       // 1. turn apply_to_X to repos
       prepared.repos = prepared.repos.concat(workflow.apply_to_repo || [])
-      workflow.apply_to_group.forEach((groupId: string) => {
+      workflow.apply_to_groups.forEach((groupId: string) => {
         const matchingGroupIndx = yaml.repos.findIndex(r => {
           return typeof r !== 'string' && r.group === groupId
         })
@@ -94,7 +94,7 @@ export namespace Leif {
   export namespace Yaml {
     export type Repo = { group: string; github_org: string; repos: string[] }
     export type Sequence = { description: string; assertions: any[] }
-    export type Workflow = { apply_to_repo?: string[]; apply_to_group: string[]; sequences: string[] }
+    export type Workflow = { apply_to_repo?: string[]; apply_to_groups: string[]; sequences: string[] }
     export type File = {
       version: string;
       repos: Array<string | Repo>;
