@@ -45,7 +45,6 @@ export default class SequenceService {
     const prDescription = sequence.description || `leif sequence ${sequence.id}`
     const branchName = sequence.id
     const dryRun = sequence.dryRun
-    let changes = false
 
     indentLog(4, repoFullName)
 
@@ -86,7 +85,6 @@ export default class SequenceService {
       })
       // eslint-disable-next-line no-await-in-loop
       await asserter.run()
-      changes = asserter.changes
     }
 
     // bail on --dry-run for ALL scenarios
@@ -107,10 +105,8 @@ export default class SequenceService {
     // 5.
     const {stdout} = await exec(`git -C ${workingDir} diff ${branchName} origin/master --name-only`)
     if (stdout) {
-      if (changes) {
-        await exec(`git -C ${workingDir} push origin ${branchName}`)
-        indentLog(6, `Pushing branch ${branchName} to GitHub...`)
-      }
+      await exec(`git -C ${workingDir} push origin ${branchName}`)
+      indentLog(6, `Pushing branch ${branchName} to GitHub...`)
     } else {
       indentLog(6, `Deleting empty branch ${branchName}...`)
       await exec(`git -C ${workingDir} branch -D ${branchName} `)

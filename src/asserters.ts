@@ -11,8 +11,6 @@ export interface AsserterServiceConfig {
 }
 
 abstract class AsserterBase {
-  public changes = false
-
   protected assertion: any
 
   protected branchName: string
@@ -59,7 +57,6 @@ abstract class AsserterBase {
       // if working dir clean
       indentLog(8, 'Working directory clean, no changes to push...')
     } else {
-      this.changes = true
       // 4.
       await exec(`git -C ${this.workingDir} add --all`)
       await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "leif asserted state via leifyaml"`)
