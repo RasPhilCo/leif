@@ -46,9 +46,9 @@ class RepoService {
 
 export default class WorkflowService {
   static workflowsFromYaml(yaml: Leif.Yaml.File, templateDir: string, dryRun = false) {
-    return Object.keys(yaml.workflows).map((key: string) => {
-      const workflow = yaml.workflows[key]
-      const prepared: Leif.Workflow = {repos: [], sequences: []}
+    return Object.keys(yaml.workflows).map((id: string) => {
+      const workflow = yaml.workflows[id]
+      const prepared: Leif.Workflow = {id, repos: [], sequences: []}
 
       // 1. turn apply_to_X to repos
       prepared.repos = prepared.repos.concat(workflow.apply_to_repo || [])
@@ -79,16 +79,21 @@ export default class WorkflowService {
     }))
   }
 
+  id: string
+
   repos: string[]
 
   sequences: Leif.Sequence[]
 
   constructor(config: Leif.Workflow) {
+    this.id = config.id
     this.repos = config.repos
     this.sequences = config.sequences
   }
 
   async run() {
+    indentLog(0, `Running workflow ${this.id}`)
+    indentLog(0, '=================\n')
     // 1. pull repo's origin master
     await RepoService.runMany(this.repos)
     // 2. run sequences
@@ -124,6 +129,7 @@ export namespace Leif {
   }
 
   export type Workflow = {
+    id: string;
     repos: string[];
     sequences: Sequence[];
   }
