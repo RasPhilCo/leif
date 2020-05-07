@@ -115,35 +115,65 @@ export class JsonHasPropertiesAsserter extends AsserterBase {
   }
 }
 
-export class NodeDependencyAsserter extends AsserterBase {
+export class NodeProjectHasDepsAsserter extends AsserterBase {
   protected async uniqWork() {
+    if (!fs.existsSync(path.join(this.workingDir, 'package.json'))) {
+      console.log('No package.json file found, skipping...')
+      return
+    }
+
+    const manager = this.assertion.manager
     const depsToInstall = this.assertion.dependencies
     const devToInstall = this.assertion.dev_dependencies
-    const depsToUninstall = this.assertion.remove
 
-    if (this.assertion.manager === 'yarn') {
-      if (!fs.existsSync(path.join(this.workingDir, 'package.json'))) {
-        console.log('No package.json file found, skipping...')
-        return
-      }
+    if (manager !== 'yarn' || manager !== 'npm') {
+      throw new Error(`Manager ${this.assertion.manager} not found`)
+    }
 
-      if (depsToInstall && depsToInstall.length > 0) {
+    if (depsToInstall && depsToInstall.length > 0) {
+      if (this.assertion.manager === 'yarn') {
         await exec(`cd ${this.workingDir}; yarn add ${depsToInstall.join(' ')}`)
+      } else if (this.assertion.manager === 'npm') {
+        await exec(`cd ${this.workingDir}; npm install ${depsToInstall.join(' ')}`)
       }
+    }
 
-      if (devToInstall && devToInstall.length > 0) {
-        await exec(`cd ${this.workingDir}; yarn add ${devToInstall.join(' ')} --dev`)
+    if (devToInstall && devToInstall.length > 0) {
+      if (this.assertion.manager === 'yarn') {
+        await exec(`cd ${this.workingDir}; yarn add --dev ${devToInstall.join(' ')}`)
+      } else if (this.assertion.manager === 'npm') {
+        await exec(`cd ${this.workingDir}; npm install --save-dev ${devToInstall.join(' ')}`)
       }
+    }
+  }
+}
 
-      if (depsToUninstall && depsToUninstall.length > 0) {
-        try {
+export class NodeProjectDoesNotHaveDepsAsserter extends AsserterBase {
+  protected async uniqWork() {
+    if (!fs.existsSync(path.join(this.workingDir, 'package.json'))) {
+      console.log('No package.json file found, skipping...')
+      return
+    }
+
+    const manager = this.assertion.manager
+    const depsToUninstall = this.assertion.dependencies
+
+    if (manager !== 'yarn' || manager !== 'npm') {
+      throw new Error(`Manager ${this.assertion.manager} not found`)
+    }
+
+    if (depsToUninstall && depsToUninstall.length > 0) {
+      try {
+        if (this.assertion.manager === 'yarn') {
           await exec(`cd ${this.workingDir}; yarn remove ${depsToUninstall.join(' ')}`)
-        } catch (error) {
-          if (error.toString().match(/This module isn't specified in a/)) {
-            // carry on
-          } else {
-            console.log(error)
-          }
+        } else if (this.assertion.manager === 'npm') {
+          await exec(`cd ${this.workingDir}; npm uninstall ${depsToUninstall.join(' ')}`)
+        }
+      } catch (error) {
+        if (error.toString().match(/This module isn't specified in a/)) {
+          // carry on
+        } else {
+          console.log(error)
         }
       }
     }
@@ -154,5 +184,6 @@ export const AsserterLookup: { [key: string]: any } = {
   'file-is-exact': FileExactMatchAsserter,
   'file-does-not-exist': FileDoesNotExistAsserter,
   'json-has-properties': JsonHasPropertiesAsserter,
-  'dependency-node': NodeDependencyAsserter,
+  'node-project-has-deps': NodeProjectHasDepsAsserter,
+  'node-project-does-not-have-deps': NodeProjectDoesNotHaveDepsAsserter,
 }
