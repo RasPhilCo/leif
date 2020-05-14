@@ -1,10 +1,8 @@
-import * as util from 'util'
 import * as Octokit from '@octokit/rest'
 
-import {Leif, indentLog} from './workflows'
 import {AsserterLookup} from './asserters'
-
-const exec = util.promisify(require('child_process').exec)
+import {Leif} from './types'
+import {exec, indentLog} from './utils'
 
 const GitHubClient = new Octokit({
   auth: process.env.GITHUB_OAUTH_TOKEN,
@@ -20,7 +18,7 @@ export default class SequenceService {
   static async run(seq: Leif.Sequence) {
     indentLog(0, `# Running sequence ${seq.id}`, '')
     indentLog(0, `## With ${seq.assertions.length} assertions: `)
-    indentLog(2, ...seq.assertions.map(a => '- ' + a.description || a.type), '')
+    indentLog(2, ...seq.assertions.map((a: Leif.Assertion) => '- ' + a.description || a.type), '')
     indentLog(2, 'On repos:')
     indentLog(2, ...seq.repos, '')
 
