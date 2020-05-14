@@ -73,10 +73,12 @@ export default class WorkflowService {
   }
 
   static async runMany(workflows: Leif.Workflow[]) {
-    await Promise.all(workflows.map((workflow: Leif.Workflow) => {
-      const w = new WorkflowService(workflow)
-      return w.run()
-    }))
+    await syncProcessArray(workflows, WorkflowService.run)
+  }
+
+  static async run(workflow: Leif.Workflow) {
+    const w = new WorkflowService(workflow)
+    return w.run()
   }
 
   id: string
