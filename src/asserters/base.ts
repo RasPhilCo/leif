@@ -47,6 +47,23 @@ export default abstract class AsserterBase {
     }
 
     // 2.
+
+    if (this.assertion.if) {
+      try {
+        await new Promise((res, rej) => {
+          exec(this.assertion.if, (error: any, _stdout: string, _stderr: string) => {
+            if (error) rej()
+            res()
+          })
+        })
+        indentLog(8, 'Passed `if` guard, continuing assertion...')
+      } catch (error) {
+        indentLog(8, 'Did not pass `if` guard, skipping assertion...')
+        await exec(`git -C ${this.workingDir} checkout master`)
+        return
+      }
+    }
+
     await this.uniqWork()
 
     // 3.
