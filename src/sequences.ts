@@ -85,42 +85,39 @@ export default class SequenceService {
       await asserter.run()
     }
 
-    // bail on --dry-run for ALL scenarios
-    // but also delete working branch
-    // 1) if not in a sequence (i.e. the end)
-    // OR
-    // 2) or last in a sequence (i.e. the end)
-    if (dryRun) {
-      if (meta.last) {
-        indentLog(6, '(In --dry-run mode, output below does not actually happen)')
-        indentLog(6, 'Pushing branch to GitHub...')
-        indentLog(6, 'Creating PR...', '')
-        await exec(`git -C ${workingDir} branch -D ${branchName}`)
-      }
-      return
-    }
-
     // 5.
+    let skipCreatingPR = false
     const {stdout} = await exec(`git -C ${workingDir} diff ${branchName} origin/master --name-only`)
     if (stdout) {
-      await exec(`git -C ${workingDir} push origin ${branchName}`)
+      if (dryRun) {
+        // clean-up dryRun
+        indentLog(6, '(In --dry-run mode, output below does not actually happen)')
+        if (meta.last) {
+          await exec(`git -C ${workingDir} branch -D ${branchName}`)
+        }
+      } else {
+        await exec(`git -C ${workingDir} push origin ${branchName}`)
+      }
       indentLog(6, `Pushing branch ${branchName} to GitHub...`)
     } else {
+      skipCreatingPR = true
       indentLog(6, `Deleting empty branch ${branchName}...`)
       await exec(`git -C ${workingDir} branch -D ${branchName} `)
     }
 
     // 6.0
-    if (pullReqExists || !meta.last) return indentLog(0, '')
+    if (pullReqExists || skipCreatingPR || !meta.last) return indentLog(0, '')
     try {
       indentLog(6, 'Creating PR...')
-      await GitHubClient.pulls.create({
-        owner,
-        repo: repoShortName,
-        title: prDescription,
-        head: branchName,
-        base: 'master',
-      })
+      if (!dryRun) {
+        await GitHubClient.pulls.create({
+          owner,
+          repo: repoShortName,
+          title: prDescription,
+          head: branchName,
+          base: 'master',
+        })
+      }
     } catch (error) {
       console.error(error)
     }
