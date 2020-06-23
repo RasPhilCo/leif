@@ -2,17 +2,15 @@ import * as Octokit from '@octokit/rest'
 
 import {AsserterLookup} from './asserters'
 import {Leif} from './types'
-import {exec, indentLog} from './utils'
+import {exec, indentLog, syncProcessArray} from './utils'
 
 const GitHubClient = new Octokit({
   auth: process.env.GITHUB_OAUTH_TOKEN,
 })
 
 export default class SequenceService {
-  static async runMany(seq: Leif.Sequence[]) {
-    await Promise.all(seq.map(async s => {
-      await SequenceService.run(s)
-    }))
+  static async runMany(seqs: Leif.Sequence[]) {
+    await syncProcessArray(seqs, SequenceService.run)
   }
 
   static async run(seq: Leif.Sequence) {
