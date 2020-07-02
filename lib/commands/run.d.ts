@@ -9,7 +9,6 @@ export default class Run extends Command {
         name: string;
         description: string;
         required: boolean;
-        default: () => string;
     }[];
     run(): Promise<void>;
 }
