@@ -1,4 +1,4 @@
-import * as Octokit from '@octokit/rest'
+import {Octokit} from '@octokit/rest'
 
 import {AsserterLookup} from './asserters'
 import {Leif} from './types'
