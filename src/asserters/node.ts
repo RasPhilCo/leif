@@ -15,7 +15,7 @@ export class NodeProjectHasDepsAsserter extends AsserterBase {
     const depsToInstall = this.assertion.dependencies
     const devToInstall = this.assertion.dev_dependencies
 
-    if (manager !== 'yarn' || manager !== 'npm') {
+    if (manager !== 'yarn' && manager !== 'npm') {
       throw new Error(`Manager ${this.assertion.manager} not found`)
     }
 
