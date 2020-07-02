@@ -74,7 +74,7 @@ export default abstract class AsserterBase {
     } else {
       // 4.
       await exec(`git -C ${this.workingDir} add --all`)
-      await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "leif asserted state via leifyaml"`)
+      await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "Authored via leif asserted state"`)
       indentLog(8, `Commiting changes to branch ${this.branchName}...`)
     }
 
