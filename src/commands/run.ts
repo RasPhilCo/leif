@@ -33,9 +33,6 @@ export default class Run extends Command {
       name: 'yaml',
       description: 'path to a leif yaml file',
       required: true,
-      default: () => {
-        return String(process.stdin.read())
-      },
     },
   ]
 
@@ -44,13 +41,11 @@ export default class Run extends Command {
     const dir = flags.dir === '.' ? process.cwd() : flags.dir
     const dryRun = Boolean(flags['dry-run'])
 
-    const workflows = args.yaml.split('\n').filter((e?: string) => e)
-
     const runWorkflowService = async (workflowFilepath: string) => {
       const yamlContents = await readYAMLFromRelativePath(workflowFilepath)
       const preparedWorkflows = WorkflowService.workflowsFromYaml(yamlContents, dir, dryRun)
       return WorkflowService.runMany(preparedWorkflows)
     }
-    syncProcessArray(workflows, runWorkflowService)
+    syncProcessArray([args.yaml], runWorkflowService)
   }
 }
