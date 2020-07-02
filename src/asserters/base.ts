@@ -51,7 +51,7 @@ export default abstract class AsserterBase {
     if (this.assertion.if) {
       try {
         await new Promise((res, rej) => {
-          exec(this.assertion.if, (error: any, _stdout: string, _stderr: string) => {
+          exec(`cd ${this.workingDir} && ${this.assertion.if}`, (error: any, _stdout: string, _stderr: string) => {
             if (error) rej()
             res()
           })
