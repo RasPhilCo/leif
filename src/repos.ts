@@ -21,7 +21,10 @@ export default class RepoService {
       await exec(`git -C ${localRepoDir} branch -vv | grep -vE 'origin/' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
     } else {
       ux.action.start(`Cloning from github repo ${repoFullName}`)
-      await exec(`git clone git@github.com:${repoFullName}.git ${localRepoDir}`)
+      let cloneCmd = `git clone git@github.com:${repoFullName}.git ${localRepoDir}`
+      const gitCredential = `${process.env.GITHUB_USERNAME}:${process.env.GITHUB_OAUTH_TOKEN || process.env.GITHUB_TOKEN}`
+      if (process.env.CI) cloneCmd = `git clone https://${gitCredential}@github.com/${repoFullName} ${localRepoDir}`
+      await exec(cloneCmd)
       ux.action.stop()
     }
   }
