@@ -5,7 +5,7 @@ import {Leif} from './types'
 import {exec, indentLog, syncProcessArray} from './utils'
 
 const GitHubClient = new Octokit({
-  auth: process.env.GITHUB_OAUTH_TOKEN,
+  auth: process.env.GITHUB_OAUTH_TOKEN || process.env.GITHUB_TOKEN,
 })
 
 export default class SequenceService {
