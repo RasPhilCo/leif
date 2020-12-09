@@ -41,7 +41,7 @@ export default class SequenceService {
     const prDescription = sequence.description || `leif sequence ${sequence.id}`
     const branchName = sequence.id
     const dryRun = sequence.dryRun
-    const masterMain = masterBranchName()
+    const masterMain = masterBranchName(workingDir)
 
     indentLog(4, repoFullName)
 

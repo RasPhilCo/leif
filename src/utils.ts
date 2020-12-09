@@ -18,6 +18,6 @@ export const syncProcessArray = async (array: any[], fn: (x: any) => void) => {
   return Promise.resolve()
 }
 
-export function masterBranchName(): string {
-  return String(execSync(`git symbolic-ref --short HEAD`)).replace('\n', '')
+export function masterBranchName(cwd: string): string {
+  return String(execSync(`git -C ${cwd} symbolic-ref --short HEAD`)).replace('\n', '')
 }

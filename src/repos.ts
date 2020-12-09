@@ -14,7 +14,7 @@ export default class RepoService {
     await fs.ensureDir(localDir)
     const localRepoDir = `${localDir}/${repoFullName}`
     if (fs.existsSync(localRepoDir)) {
-      const masterMain = masterBranchName()
+      const masterMain = masterBranchName(localRepoDir)
       console.log(`Pulling origin ${masterMain} for repo ${repoFullName}...`)
       await exec(`git -C ${localRepoDir} checkout ${masterMain}`)
       await exec(`git -C ${localRepoDir} fetch --prune`)

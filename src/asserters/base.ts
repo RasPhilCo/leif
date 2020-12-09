@@ -32,7 +32,7 @@ export default abstract class AsserterBase {
   }
 
   async run() {
-    const masterMain = masterBranchName()
+    const masterMain = masterBranchName(this.workingDir)
 
     // 1.
     await exec(`git -C ${this.workingDir} checkout ${masterMain}`) // branch from master/main
