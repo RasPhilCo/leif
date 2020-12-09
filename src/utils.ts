@@ -1,6 +1,8 @@
 import * as util from 'util'
 
-export const exec = util.promisify(require('child_process').exec)
+const {exec: execz, execSync} = require('child_process')
+
+export const exec = util.promisify(execz)
 
 export const indentLog = (spaces: number, ...loglines: string[]) => {
   loglines.forEach(line => {
@@ -17,6 +19,5 @@ export const syncProcessArray = async (array: any[], fn: (x: any) => void) => {
 }
 
 export function masterBranchName(): string {
-  const {stdout} = require('child_process').execSync(`git symbolic-ref --short HEAD`)
-  return stdout.trim('\n')
+  return String(execSync(`git symbolic-ref --short HEAD`)).replace('\n', '')
 }
