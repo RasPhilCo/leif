@@ -55,7 +55,7 @@ export default class WorkflowService {
   async run() {
     indentLog(0, `Running workflow ${this.id}`)
     indentLog(0, '=================\n')
-    // 1. pull repo's origin master
+    // 1. pull repo's origin master/main
     await RepoService.runMany(this.repos)
     // 2. run sequences
     await SequenceService.runMany(this.sequences)
