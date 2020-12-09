@@ -1,7 +1,5 @@
 import {exec, indentLog, masterBranchName} from '../utils'
 
-const masterMain = masterBranchName()
-
 export interface AsserterServiceConfig {
   assertion: { apply_only_to_repos: string[] };
   dryRun: boolean;
@@ -34,6 +32,8 @@ export default abstract class AsserterBase {
   }
 
   async run() {
+    const masterMain = masterBranchName()
+
     // 1.
     await exec(`git -C ${this.workingDir} checkout ${masterMain}`) // branch from master/main
     try {

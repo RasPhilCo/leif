@@ -4,8 +4,6 @@ import {AsserterLookup} from './asserters'
 import {Leif} from './types'
 import {exec, indentLog, syncProcessArray, masterBranchName} from './utils'
 
-const masterMain = masterBranchName()
-
 const GitHubClient = new Octokit({
   auth: process.env.GITHUB_OAUTH_TOKEN || process.env.GITHUB_TOKEN,
 })
@@ -43,6 +41,7 @@ export default class SequenceService {
     const prDescription = sequence.description || `leif sequence ${sequence.id}`
     const branchName = sequence.id
     const dryRun = sequence.dryRun
+    const masterMain = masterBranchName()
 
     indentLog(4, repoFullName)
 
