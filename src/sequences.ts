@@ -2,7 +2,9 @@ import {Octokit} from '@octokit/rest'
 
 import {AsserterLookup} from './asserters'
 import {Leif} from './types'
-import {exec, indentLog, syncProcessArray} from './utils'
+import {exec, indentLog, syncProcessArray, masterBranchName} from './utils'
+
+const masterMain = masterBranchName()
 
 const GitHubClient = new Octokit({
   auth: process.env.GITHUB_OAUTH_TOKEN || process.env.GITHUB_TOKEN,
@@ -85,7 +87,7 @@ export default class SequenceService {
 
     // 5.
     let skipCreatingPR = false
-    const {stdout} = await exec(`git -C ${workingDir} diff ${branchName} origin/master --name-only`)
+    const {stdout} = await exec(`git -C ${workingDir} diff ${branchName} origin/${masterMain} --name-only`)
     if (stdout) {
       if (dryRun) {
         // clean-up dryRun
@@ -113,7 +115,7 @@ export default class SequenceService {
           repo: repoShortName,
           title: prDescription,
           head: branchName,
-          base: 'master',
+          base: masterMain,
         })
       }
     } catch (error) {

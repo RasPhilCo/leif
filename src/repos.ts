@@ -1,6 +1,8 @@
 import * as fs from 'fs-extra'
 import ux from 'cli-ux'
-import {exec, syncProcessArray} from './utils'
+import { exec, syncProcessArray, masterBranchName} from './utils'
+
+const masterMain = masterBranchName()
 
 export default class RepoService {
   static async runMany(repos: string[]) {
@@ -13,8 +15,8 @@ export default class RepoService {
     await fs.ensureDir(localDir)
     const localRepoDir = `${localDir}/${repoFullName}`
     if (fs.existsSync(localRepoDir)) {
-      console.log(`Pulling origin master for repo ${repoFullName}...`)
-      await exec(`git -C ${localRepoDir} checkout master`)
+      console.log(`Pulling origin ${masterMain} for repo ${repoFullName}...`)
+      await exec(`git -C ${localRepoDir} checkout ${masterMain}`)
       await exec(`git -C ${localRepoDir} fetch --prune`)
       await exec(`git -C ${localRepoDir} pull`)
       await exec(`git -C ${localRepoDir} branch -vv | grep ': gone' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)

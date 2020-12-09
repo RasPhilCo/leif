@@ -1,4 +1,6 @@
-import {exec, indentLog} from '../utils'
+import {exec, indentLog, masterBranchName} from '../utils'
+
+const masterMain = masterBranchName()
 
 export interface AsserterServiceConfig {
   assertion: { apply_only_to_repos: string[] };
@@ -33,7 +35,7 @@ export default abstract class AsserterBase {
 
   async run() {
     // 1.
-    await exec(`git -C ${this.workingDir} checkout master`) // branch from master
+    await exec(`git -C ${this.workingDir} checkout ${masterMain}`) // branch from master/main
     try {
       await exec(`git -C ${this.workingDir} checkout ${this.branchName}`)
       indentLog(8, `Checking out branch ${this.branchName}...`)
@@ -59,7 +61,7 @@ export default abstract class AsserterBase {
         indentLog(8, 'Passed `if` guard, continuing assertion...')
       } catch (error) {
         indentLog(8, 'Did not pass `if` guard, skipping assertion...')
-        await exec(`git -C ${this.workingDir} checkout master`)
+        await exec(`git -C ${this.workingDir} checkout ${masterMain}`)
         return
       }
     }
@@ -78,8 +80,8 @@ export default abstract class AsserterBase {
       indentLog(8, `Commiting changes to branch ${this.branchName}...`)
     }
 
-    // work is done, return to master
-    await exec(`git -C ${this.workingDir} checkout master`)
+    // work is done, return to master/main
+    await exec(`git -C ${this.workingDir} checkout ${masterMain}`)
   }
 
   protected async uniqWork() {

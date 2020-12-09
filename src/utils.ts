@@ -15,3 +15,8 @@ export const syncProcessArray = async (array: any[], fn: (x: any) => void) => {
   }
   return Promise.resolve()
 }
+
+export function masterBranchName(): string {
+  const {stdout} = require('child_process').execSync(`git symbolic-ref --short HEAD`)
+  return stdout.trim('\n')
+}
