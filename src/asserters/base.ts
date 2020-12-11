@@ -66,7 +66,10 @@ export default abstract class AsserterBase {
       }
     }
 
-    await this.uniqWork()
+    const result = await this.uniqWork()
+    if (result) {
+      indentLog(8, result)
+    }
 
     // 3.
     const {stdout} = await exec(`git -C ${this.workingDir} status`)
@@ -84,9 +87,7 @@ export default abstract class AsserterBase {
     await exec(`git -C ${this.workingDir} checkout ${masterMain}`)
   }
 
-  protected async uniqWork() {
-    // not implemented==
-  }
+  protected abstract async uniqWork(): Promise<string | void>;
 
   private get commitDescription() {
     return this.assertion.description || `leif ${this.assertion.type} assertion`

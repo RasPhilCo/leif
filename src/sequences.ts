@@ -20,9 +20,12 @@ export default class SequenceService {
     indentLog(2, 'On repos:')
     indentLog(2, ...seq.repos, '')
 
-    for (const repoFullName of seq.repos) {
-      // eslint-disable-next-line no-await-in-loop
-      await SequenceService.applyAssertionsToRepo(repoFullName, seq)
+    try {
+      for (const repoFullName of seq.repos) {
+        await SequenceService.applyAssertionsToRepo(repoFullName, seq)
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -69,19 +72,27 @@ export default class SequenceService {
       meta.last = i + 1 === sequenceLength
       const assertion = sequence.assertions[i]
       sequence = Object.assign(sequence, meta)
-      // eslint-disable-next-line no-await-in-loop
+
       indentLog(6, `Assert: ${assertion.description} (type: ${assertion.type})`)
 
       const Asserter = AsserterLookup[assertion.type]
-      const asserter = new Asserter({
-        assertion,
-        repoFullName,
-        dryRun,
-        branchName,
-        templateDir: sequence.templateDir,
-      })
-      // eslint-disable-next-line no-await-in-loop
-      await asserter.run()
+
+      try {
+        if (!Asserter) throw new Error(`Invalid asserter type ${assertion.type}`)
+
+        const asserter = new Asserter({
+          assertion,
+          repoFullName,
+          dryRun,
+          branchName,
+          templateDir: sequence.templateDir,
+        })
+        await asserter.run()
+      } catch (error) {
+        await exec(`git -C ${workingDir} checkout ${masterMain}`)
+        await exec(`git -C ${workingDir} branch -D ${branchName}`)
+        throw error
+      }
     }
 
     // 5.
