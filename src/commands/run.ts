@@ -18,13 +18,24 @@ export default class Run extends Command {
   static flags = {
     'dry-run': flags.boolean({
       char: 'd',
-      description: 'view output without commiting changes',
+      description: 'view output without committing changes',
     }),
     dir: flags.string({
       char: 'f',
       description: 'absolute path to directory with supporting files',
       required: true,
       default: '.',
+    }),
+    workflow: flags.string({
+      char: 'w',
+      description: 'run a specific workflow instead of all workflows',
+      multiple: true,
+    }),
+    sequence: flags.string({
+      char: 's',
+      description: 'run a specific sequence in a workflow',
+      dependsOn: ['workflow'],
+      multiple: true,
     }),
   }
 
@@ -43,7 +54,20 @@ export default class Run extends Command {
 
     const runWorkflowService = async (workflowFilepath: string) => {
       const yamlContents = await readYAMLFromRelativePath(workflowFilepath)
-      const preparedWorkflows = WorkflowService.workflowsFromYaml(yamlContents, dir, dryRun)
+      let preparedWorkflows = WorkflowService.workflowsFromYaml(yamlContents, dir, dryRun)
+
+      if (flags.workflow) {
+        const workflows = flags.workflow
+        const sequences = flags.sequence
+
+        preparedWorkflows = preparedWorkflows.filter(workflow => {
+          const shouldInclude = workflows.includes(workflow.id)
+          if (shouldInclude) {
+            workflow.sequences = workflow.sequences.filter(sequence => sequences.includes(sequence.id))
+          }
+          return shouldInclude
+        })
+      }
       return WorkflowService.runMany(preparedWorkflows)
     }
     syncProcessArray([args.yaml], runWorkflowService)
