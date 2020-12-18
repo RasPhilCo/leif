@@ -10,8 +10,9 @@ export default class WorkflowService {
       const prepared: Leif.Workflow = {id, repos: [], sequences: []}
 
       // 1. turn apply_to_X to repos
-      prepared.repos = prepared.repos.concat(workflow.apply_to_repo || [])
-      workflow.apply_to_groups.forEach((groupId: string) => {
+      prepared.repos = prepared.repos.concat(workflow.apply_to_repos || [])
+      const groups = workflow.apply_to_groups || []
+      groups.forEach((groupId: string) => {
         const matchingGroupIndx = yaml.repos.findIndex(r => {
           return typeof r !== 'string' && r.group === groupId
         })
