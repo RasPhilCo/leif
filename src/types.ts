@@ -2,7 +2,7 @@ export namespace Leif {
   export namespace Yaml {
     export type Repo = { group: string; github_org: string; repos: string[] }
     export type Sequence = { description: string; assertions: any[] }
-    export type Workflow = { apply_to_repo?: string[]; apply_to_groups: string[]; sequences: string[] }
+    export type Workflow = { apply_to_repos?: string[]; apply_to_groups?: string[]; sequences: string[] }
     export type File = {
       version: string;
       repos: Array<string | Repo>;
