@@ -1,0 +1,18 @@
+---
+repos:
+  - rasphilco/leif
+sequences:
+  test-assertions:
+    description: 'test assertions'
+    assertions:
+      - type: json-has-properties
+        description: 'package has name'
+        source_relative_filepath: ./test/package.json
+        target_relative_filepath: package.json
+
+workflows:
+  ci:
+    apply_to_repos:
+      - rasphilco/leif
+    sequences:
+      - test-assertions
