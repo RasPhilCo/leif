@@ -14,6 +14,7 @@ export class NodeProjectHasDepsAsserter extends AsserterBase {
     const manager = this.assertion.manager
     const depsToInstall = this.assertion.dependencies
     const devToInstall = this.assertion.dev_dependencies
+    const forceInstall = this.assertion.force_install
 
     if (manager !== 'yarn' && manager !== 'npm') {
       throw new Error(`Manager ${this.assertion.manager} not found`)
@@ -32,6 +33,14 @@ export class NodeProjectHasDepsAsserter extends AsserterBase {
         await exec(`cd ${this.workingDir}; yarn add --dev ${devToInstall.join(' ')}`)
       } else if (this.assertion.manager === 'npm') {
         await exec(`cd ${this.workingDir}; npm install --save-dev ${devToInstall.join(' ')}`)
+      }
+    }
+
+    if (forceInstall) {
+      if (this.assertion.manager === 'yarn') {
+        await exec(`cd ${this.workingDir}; yarn install --force`)
+      } else if (this.assertion.manager === 'npm') {
+        await exec(`cd ${this.workingDir}; npm install --force`)
       }
     }
   }
