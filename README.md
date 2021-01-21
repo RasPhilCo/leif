@@ -21,7 +21,7 @@ $ npm install -g @rasphilco/leif
 $ leif COMMAND
 running command...
 $ leif (-v|--version|version)
-@rasphilco/leif/0.2.0 darwin-x64 node-v12.14.1
+@rasphilco/leif/0.3.0 darwin-x64 node-v12.14.1
 $ leif --help [COMMAND]
 USAGE
   $ leif COMMAND
@@ -46,7 +46,7 @@ ARGUMENTS
   SCOPE  scope of repos to remove
 ```
 
-_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.2.0/src/commands/cleanup.ts)_
+_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.3.0/src/commands/cleanup.ts)_
 
 ## `leif help [COMMAND]`
 
@@ -83,5 +83,5 @@ OPTIONS
   -w, --workflow=workflow  run a specific workflow instead of all workflows
 ```
 
-_See code: [src/commands/run.ts](https://github.com/RasPhilCo/leif/blob/v0.2.0/src/commands/run.ts)_
+_See code: [src/commands/run.ts](https://github.com/RasPhilCo/leif/blob/v0.3.0/src/commands/run.ts)_
 <!-- commandsstop -->
