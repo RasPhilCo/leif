@@ -18,8 +18,13 @@ export default class RepoService {
       await exec(`git -C ${localRepoDir} checkout ${masterMain}`)
       await exec(`git -C ${localRepoDir} fetch --prune`)
       await exec(`git -C ${localRepoDir} pull`)
-      await exec(`git -C ${localRepoDir} branch -vv | grep ': gone' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
-      await exec(`git -C ${localRepoDir} branch -vv | grep -vE 'origin/' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
+      try {
+        await exec(`git -C ${localRepoDir} branch -vv | grep ': gone' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
+        await exec(`git -C ${localRepoDir} branch -vv | grep -vE 'origin/' | awk '{print $1}' | xargs git -C ${localRepoDir} branch -D`)
+      } catch (_) {
+        ux.log(`A error occured cleaning up stale branches in ${localRepoDir}`)
+        ux.log('You may need to clean up branches manually')
+      }
     } else {
       ux.action.start(`Cloning from github repo ${repoFullName}`)
       let cloneCmd = `git clone git@github.com:${repoFullName}.git ${localRepoDir}`
