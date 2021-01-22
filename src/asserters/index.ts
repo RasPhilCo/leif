@@ -9,5 +9,5 @@ export const AsserterLookup: { [key: string]: any } = {
   'json-has-properties': JsonHasPropertiesAsserter,
   'node-project-has-deps': NodeProjectHasDepsAsserter,
   'node-project-does-not-have-deps': NodeProjectDoesNotHaveDepsAsserter,
-  'github-repo-property-is-value': GithubRepoPropertyValueAsserter,
+  'github-repo-property-has-value': GithubRepoPropertyValueAsserter,
 }
