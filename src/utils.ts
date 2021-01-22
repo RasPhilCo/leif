@@ -12,7 +12,6 @@ export const indentLog = (spaces: number, ...loglines: string[]) => {
 
 export const syncProcessArray = async (array: any[], fn: (x: any) => void) => {
   for (let i = 0; i < array.length; i++) {
-    // eslint-disable-next-line no-await-in-loop
     await fn(array[i])
   }
   return Promise.resolve()
