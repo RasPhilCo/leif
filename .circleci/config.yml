@@ -11,9 +11,11 @@ jobs:
           name: Install dependencies
           command: yarn
       - run:
+          name: Run tests
+          command: yarn test
+      - run:
           name: Run leif
           command: |
-            yarn posttest
             yarn prepack
             ./bin/run run test/leif.yml
 workflows:

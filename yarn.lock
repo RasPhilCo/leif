@@ -349,6 +349,11 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/js-yaml@^3.12.6":
+  version "3.12.6"
+  resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-3.12.6.tgz#7f10c926aa41e189a2755c4c7fcf8e4573bd7ac1"
+  integrity sha512-cK4XqrLvP17X6c0C8n4iTbT59EixqyXL3Fk8/Rsk4dF3oX4dg70gYUXrXVUUHpnsGMPNlTQMqf+TVmNPX6FmSQ==
+
 "@types/json-schema@^7.0.3":
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.3.tgz#bdfd69d61e464dcc81b25159c270d75a73c1a636"
@@ -378,9 +383,9 @@
   integrity sha512-syUgf67ZQpaJj01/tRTknkMNoBBLWJOBODF0Zm4NrXmiSuxjymFrxnTu1QVYRubhVkRcZLYZG8STTwJRdVm/WQ==
 
 "@types/node@^10":
-  version "10.17.49"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.49.tgz#ecf0b67bab4b84d0ec9b0709db4aac3824a51c4a"
-  integrity sha512-PGaJNs5IZz5XgzwJvL/1zRfZB7iaJ5BydZ8/Picm+lUNYoNO9iVTQkVy5eUh0dZDrx3rBOIs3GCbCRmMuYyqwg==
+  version "10.17.51"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.51.tgz#639538575befbcf3d3861f95c41de8e47124d674"
+  integrity sha512-KANw+MkL626tq90l++hGelbl67irOJzGhUJk6a1Bt8QHOeh9tztJx+L0AqttraWKinmZn7Qi5lJZJzx45Gq0dg==
 
 "@types/sinon@*":
   version "9.0.9"
@@ -2085,7 +2090,7 @@ js-tokens@^4.0.0:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-js-yaml@^3.13.1:
+js-yaml@^3.13.1, js-yaml@^3.14.1:
   version "3.14.1"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.14.1.tgz#dae812fdb3825fa306609a8717383c50c36a0537"
   integrity sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==

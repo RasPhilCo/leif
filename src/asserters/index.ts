@@ -1,6 +1,7 @@
 import {FileExactMatchAsserter, FileDoesNotExistAsserter} from './file'
 import {GithubRepoPropertyValueAsserter} from './github'
 import {JsonHasPropertiesAsserter} from './json'
+import {YamlHasPropertiesAsserter} from './yaml'
 import {NodeProjectHasDepsAsserter, NodeProjectDoesNotHaveDepsAsserter} from './node'
 
 export const AsserterLookup: { [key: string]: any } = {
@@ -10,4 +11,5 @@ export const AsserterLookup: { [key: string]: any } = {
   'node-project-has-deps': NodeProjectHasDepsAsserter,
   'node-project-does-not-have-deps': NodeProjectDoesNotHaveDepsAsserter,
   'github-repo-property-has-value': GithubRepoPropertyValueAsserter,
+  'yaml-has-properties': YamlHasPropertiesAsserter,
 }

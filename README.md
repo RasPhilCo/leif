@@ -17,11 +17,11 @@ multi-repo syncronization &amp; management tool
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g leif
+$ npm install -g @rasphilco/leif
 $ leif COMMAND
 running command...
 $ leif (-v|--version|version)
-leif/0.0.0 darwin-x64 node-v12.13.0
+@rasphilco/leif/0.3.0 darwin-x64 node-v12.14.1
 $ leif --help [COMMAND]
 USAGE
   $ leif COMMAND
@@ -30,39 +30,23 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`leif assert`](#leif-assert)
-* [`leif cleanup`](#leif-cleanup)
+* [`leif cleanup [SCOPE]`](#leif-cleanup-scope)
 * [`leif help [COMMAND]`](#leif-help-command)
-* [`leif list`](#leif-list)
+* [`leif run YAML`](#leif-run-yaml)
 
-## `leif assert`
-
-apply leif config to repositories
-
-```
-USAGE
-  $ leif assert
-
-OPTIONS
-  -c, --config=config  (required) path to a leif config file
-  -d, --dry-run        see changes without implementing them
-```
-
-_See code: [src/commands/assert.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/assert.ts)_
-
-## `leif cleanup`
+## `leif cleanup [SCOPE]`
 
 remove managed repos
 
 ```
 USAGE
-  $ leif cleanup
+  $ leif cleanup [SCOPE]
 
-OPTIONS
-  -c, --config=config  (required) path to a leif config file
+ARGUMENTS
+  SCOPE  scope of repos to remove
 ```
 
-_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/cleanup.ts)_
+_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.3.0/src/commands/cleanup.ts)_
 
 ## `leif help [COMMAND]`
 
@@ -79,19 +63,25 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.1/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.1/src/commands/help.ts)_
 
-## `leif list`
+## `leif run YAML`
 
-list repository being managed
+run leif state workflows
 
 ```
 USAGE
-  $ leif list
+  $ leif run YAML
+
+ARGUMENTS
+  YAML  path to a leif yaml file
 
 OPTIONS
-  -c, --config=config  (required) path to a leif config file
+  -d, --dry-run            view output without committing changes
+  -f, --dir=dir            (required) [default: .] absolute path to directory with supporting files
+  -s, --sequence=sequence  run a specific sequence in a workflow
+  -w, --workflow=workflow  run a specific workflow instead of all workflows
 ```
 
-_See code: [src/commands/list.ts](https://github.com/RasPhilCo/leif/blob/v0.0.0/src/commands/list.ts)_
+_See code: [src/commands/run.ts](https://github.com/RasPhilCo/leif/blob/v0.3.0/src/commands/run.ts)_
 <!-- commandsstop -->
