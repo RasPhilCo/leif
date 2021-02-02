@@ -23,7 +23,8 @@ jobs:
           command: |
             yarn prepack
             ./bin/run run test/leif.yml
-  test-dry-run-prs: *test
+  test-dry-run-prs:
+    <<: *test
     steps:
       - checkout
       - run:
