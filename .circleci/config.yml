@@ -47,14 +47,14 @@ workflows:
   version: 2
   tests-master:
     jobs:
-      - test
+      - test:
           filters:
             branches:
               only: 
                 - master
   tests-prs:
     jobs:
-      - test-dry-run-prs
+      - test-dry-run-prs:
           filters:
             branches:
               ignore:
