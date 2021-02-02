@@ -1,12 +1,17 @@
 ---
 version: 2
 jobs:
-  test:
+  test: &test
     docker:
       - image: node:latest
     working_directory: ~/leif
     steps:
       - checkout
+      - run:
+        name: configure github
+        command: |
+            git config --global user.email leif_dummy@example.com
+            git config --global user.name leif_dummy
       - run:
           name: Install dependencies
           command: yarn
@@ -18,8 +23,38 @@ jobs:
           command: |
             yarn prepack
             ./bin/run run test/leif.yml
+  test-dry-run-prs: *test
+    steps:
+      - checkout
+      - run:
+        name: configure github
+        command: |
+            git config --global user.email leif_dummy@example.com
+            git config --global user.name leif_dummy
+      - run:
+          name: Install dependencies
+          command: yarn
+      - run:
+          name: Run tests
+          command: yarn test
+      - run:
+          name: Run leif
+          command: |
+            yarn prepack
+            ./bin/run run test/leif.yml --dry-run
 workflows:
   version: 2
-  leif:
+  tests-master:
     jobs:
       - test
+          filters:
+            branches:
+              only: 
+                - master
+  tests-prs:
+    jobs:
+      - test-dry-run-prs
+          filters:
+            branches:
+              ignore:
+                - master
