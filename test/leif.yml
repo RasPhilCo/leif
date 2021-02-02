@@ -9,6 +9,13 @@ sequences:
         description: 'package has name'
         source_relative_filepath: ./test/package.json
         target_relative_filepath: package.json
+  sync-dependabot:
+    description: 'chore: sync dependabot.yml'
+    assertions:
+      - type: file-is-exact
+        description: 'chore: sync dependabot.yml'
+        target_relative_filepath: .github/dependabot.yml
+        source_relative_filepath: test/dependabot.yml
 
 workflows:
   ci:
@@ -16,3 +23,4 @@ workflows:
       - rasphilco/leif
     sequences:
       - test-assertions
+      - sync-dependabot
