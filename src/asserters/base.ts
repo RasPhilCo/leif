@@ -71,6 +71,17 @@ export default abstract class AsserterBase {
       indentLog(8, result)
     }
 
+    if (this.assertion.post_steps) {
+      indentLog(8, 'Running post assertion steps')
+      const steps: string[] = Array.isArray(this.assertion.post_steps) ?
+        this.assertion.post_steps :
+        [this.assertion.post_steps]
+      for (const step of steps) {
+        indentLog(10, step)
+        await exec(step, {cwd: this.workingDir})
+      }
+    }
+
     // 3.
     const {stdout} = await exec(`git -C ${this.workingDir} status`)
     if (stdout.toString().match(/nothing to commit, working tree clean/)) {
@@ -87,7 +98,7 @@ export default abstract class AsserterBase {
     await exec(`git -C ${this.workingDir} checkout ${masterMain}`)
   }
 
-  protected abstract async uniqWork(): Promise<string | void>;
+  protected abstract uniqWork(): Promise<string | void>;
 
   private get commitDescription() {
     return this.assertion.description || `leif ${this.assertion.type} assertion`
