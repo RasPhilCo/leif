@@ -8,10 +8,10 @@ jobs:
     steps:
       - checkout
       - run:
-        name: configure github
-        command: |
-            git config --global user.email leif_dummy@example.com
-            git config --global user.name leif_dummy
+          name: Configure github
+          command: |
+              git config --global user.email leif_dummy@example.com
+              git config --global user.name leif_dummy
       - run:
           name: Install dependencies
           command: yarn
@@ -28,10 +28,10 @@ jobs:
     steps:
       - checkout
       - run:
-        name: configure github
-        command: |
-            git config --global user.email leif_dummy@example.com
-            git config --global user.name leif_dummy
+          name: Configure github
+          command: |
+              git config --global user.email leif_dummy@example.com
+              git config --global user.name leif_dummy
       - run:
           name: Install dependencies
           command: yarn
