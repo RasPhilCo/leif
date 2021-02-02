@@ -30,7 +30,7 @@
     "globby": "^11",
     "install": "^0.13.0",
     "mocha": "^5",
-    "nyc": "^13",
+    "nyc": "^15",
     "ts-node": "^9",
     "typescript": "3.8.3"
   },
