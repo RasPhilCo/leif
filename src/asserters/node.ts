@@ -3,14 +3,10 @@ import * as fs from 'fs-extra'
 
 import AsserterBase from './base'
 import {exec} from '../utils'
+import * as glob from 'fast-glob'
 
 export class NodeProjectHasDepsAsserter extends AsserterBase {
-  protected async uniqWork() {
-    if (!fs.existsSync(path.join(this.workingDir, 'package.json'))) {
-      console.log('No package.json file found, skipping...')
-      return
-    }
-
+  async doWork(workingDir = this.workingDir, flags?: string) {
     const manager = this.assertion.manager
     const depsToInstall = this.assertion.dependencies
     const devToInstall = this.assertion.dev_dependencies
@@ -22,25 +18,59 @@ export class NodeProjectHasDepsAsserter extends AsserterBase {
 
     if (depsToInstall && depsToInstall.length > 0) {
       if (this.assertion.manager === 'yarn') {
-        await exec(`cd ${this.workingDir}; yarn add ${depsToInstall.join(' ')}`)
+        await exec(`cd ${workingDir}; yarn add ${depsToInstall.join(' ')} ${flags}`)
       } else if (this.assertion.manager === 'npm') {
-        await exec(`cd ${this.workingDir}; npm install ${depsToInstall.join(' ')}`)
+        await exec(`cd ${workingDir}; npm install ${depsToInstall.join(' ')}`)
       }
     }
 
     if (devToInstall && devToInstall.length > 0) {
       if (this.assertion.manager === 'yarn') {
-        await exec(`cd ${this.workingDir}; yarn add --dev ${devToInstall.join(' ')}`)
+        await exec(`cd ${workingDir}; yarn add --dev ${devToInstall.join(' ')} ${flags}`)
       } else if (this.assertion.manager === 'npm') {
-        await exec(`cd ${this.workingDir}; npm install --save-dev ${devToInstall.join(' ')}`)
+        await exec(`cd ${workingDir}; npm install --save-dev ${devToInstall.join(' ')}`)
       }
     }
 
     if (forceInstall) {
       if (this.assertion.manager === 'yarn') {
-        await exec(`cd ${this.workingDir}; yarn install --force`)
+        await exec(`cd ${workingDir}; yarn install --force`)
       } else if (this.assertion.manager === 'npm') {
-        await exec(`cd ${this.workingDir}; npm install --force`)
+        await exec(`cd ${workingDir}; npm install --force`)
+      }
+    }
+  }
+
+  protected async uniqWork() {
+    if (!fs.existsSync(path.join(this.workingDir, 'package.json'))) {
+      console.log('No package.json file found, skipping...')
+      return
+    }
+
+    await this.doWork()
+  }
+}
+
+export class NodeLernaProjectHasDepsAsserter extends NodeProjectHasDepsAsserter {
+  protected async uniqWork() {
+    if (!fs.existsSync(path.join(this.workingDir, 'lerna.json'))) {
+      console.log('No lerna.json file found, skipping...')
+      return
+    }
+    const targets: string[] = []
+    if (this.assertion.target_glob_filepath) {
+      const fullGlob = path.join(this.workingDir, this.assertion.target_glob_filepath)
+      const matches = await glob(fullGlob, {onlyDirectories: true})
+      targets.push(...matches)
+    } else {
+      targets.push(this.workingDir)
+    }
+
+    for (const target of targets) {
+      if (target === this.workingDir) {
+        await this.doWork(target, '-W')
+      } else {
+        await this.doWork(target)
       }
     }
   }
