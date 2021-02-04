@@ -117,19 +117,15 @@ export default class SequenceService {
 
     // 6.0
     if (pullReqExists || skipCreatingPR || !meta.last) return indentLog(0, '')
-    try {
-      indentLog(6, 'Creating PR...')
-      if (!dryRun) {
-        await GitHubClient.pulls.create({
-          owner,
-          repo: repoShortName,
-          title: prDescription,
-          head: branchName,
-          base: masterMain,
-        })
-      }
-    } catch (error) {
-      console.error(error)
+    indentLog(6, 'Creating PR...')
+    if (!dryRun) {
+      await GitHubClient.pulls.create({
+        owner,
+        repo: repoShortName,
+        title: prDescription,
+        head: branchName,
+        base: masterMain,
+      })
     }
 
     indentLog(0, '')
