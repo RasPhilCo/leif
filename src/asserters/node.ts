@@ -6,7 +6,7 @@ import {exec} from '../utils'
 import * as glob from 'fast-glob'
 
 export class NodeProjectHasDepsAsserter extends AsserterBase {
-  async doWork(workingDir = this.workingDir, flags?: string) {
+  async doWork(workingDir = this.workingDir, flags = '') {
     const manager = this.assertion.manager
     const depsToInstall = this.assertion.dependencies
     const devToInstall = this.assertion.dev_dependencies
