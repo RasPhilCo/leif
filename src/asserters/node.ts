@@ -101,7 +101,7 @@ export class NodeProjectDoesNotHaveDepsAsserter extends AsserterBase {
         if (error.toString().match(/This module isn't specified in a/)) {
           // carry on
         } else {
-          console.log(error)
+          throw error
         }
       }
     }
