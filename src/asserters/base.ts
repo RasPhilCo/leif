@@ -90,7 +90,7 @@ export default abstract class AsserterBase {
     } else {
       // 4.
       await exec(`git -C ${this.workingDir} add --all`)
-      await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "Authored via Leif"`)
+      await exec(`git -C ${this.workingDir} commit -m "${this.commitDescription}" -m "Authored via Leif" --no-verify`)
       indentLog(8, `Commiting changes to branch ${this.branchName}...`)
     }
 
