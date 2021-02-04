@@ -20,12 +20,8 @@ export default class SequenceService {
     indentLog(2, 'On repos:')
     indentLog(2, ...seq.repos, '')
 
-    try {
-      for (const repoFullName of seq.repos) {
-        await SequenceService.applyAssertionsToRepo(repoFullName, seq)
-      }
-    } catch (error) {
-      console.error(error)
+    for (const repoFullName of seq.repos) {
+      await SequenceService.applyAssertionsToRepo(repoFullName, seq)
     }
   }
 
