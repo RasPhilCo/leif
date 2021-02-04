@@ -12,6 +12,7 @@
     "@oclif/config": "^1.13.3",
     "@octokit/rest": "^16.34.1",
     "cli-ux": "^5.3.3",
+    "fast-glob": "^3.2.5",
     "fs-extra": "^9.1.0",
     "js-yaml": "^3.14.1"
   },
