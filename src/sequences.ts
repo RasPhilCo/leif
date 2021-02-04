@@ -102,7 +102,7 @@ export default class SequenceService {
           await exec(`git -C ${workingDir} branch -D ${branchName}`)
         }
       } else {
-        await exec(`git -C ${workingDir} push origin ${branchName}`)
+        await exec(`git -C ${workingDir} push origin ${branchName} --no-verify`)
       }
       indentLog(6, `Pushing branch ${branchName} to GitHub...`)
     } else {
