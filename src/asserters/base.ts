@@ -19,12 +19,15 @@ export default abstract class AsserterBase {
 
   protected repoFullName: string
 
+  protected mainBranchName: string
+
   constructor({assertion, repoFullName, dryRun, branchName, templateDir}: AsserterServiceConfig) {
     this.assertion = assertion
     this.branchName = branchName
     this.templateDir = templateDir
     this.dryRun = dryRun
     this.repoFullName = repoFullName
+    this.mainBranchName = masterBranchName(this.workingDir)
   }
 
   protected get workingDir() {
@@ -32,10 +35,8 @@ export default abstract class AsserterBase {
   }
 
   async run() {
-    const masterMain = masterBranchName(this.workingDir)
-
     // 1.
-    await exec(`git -C ${this.workingDir} checkout ${masterMain}`) // branch from master/main
+    await exec(`git -C ${this.workingDir} checkout ${this.mainBranchName}`) // branch from master/main
     try {
       await exec(`git -C ${this.workingDir} checkout ${this.branchName}`)
       indentLog(8, `Checking out branch ${this.branchName}...`)
@@ -61,7 +62,7 @@ export default abstract class AsserterBase {
         indentLog(8, 'Passed `if` guard, continuing assertion...')
       } catch (error) {
         indentLog(8, 'Did not pass `if` guard, skipping assertion...')
-        await exec(`git -C ${this.workingDir} checkout ${masterMain}`)
+        await exec(`git -C ${this.workingDir} checkout ${this.mainBranchName}`)
         return
       }
     }
@@ -95,7 +96,7 @@ export default abstract class AsserterBase {
     }
 
     // work is done, return to master/main
-    await exec(`git -C ${this.workingDir} checkout ${masterMain}`)
+    await exec(`git -C ${this.workingDir} checkout ${this.mainBranchName}`)
   }
 
   protected abstract uniqWork(): Promise<string | void>;
