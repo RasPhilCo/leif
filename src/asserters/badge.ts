@@ -14,6 +14,8 @@ const LICENSES: Record<string, string> = {
 export class ReadmeHasBadgesAsserter extends AsserterBase {
   protected async uniqWork() {
     const pkgJson = require(path.join(this.workingDir, 'package.json'))
+    const readmePath = path.join(this.workingDir, 'README.md')
+    let readme = fs.readFileSync(readmePath, 'utf-8')
 
     const {name, license} = pkgJson
     const BADGES: Record<string, string> = {
@@ -23,10 +25,10 @@ export class ReadmeHasBadgesAsserter extends AsserterBase {
       downloads: `[![Downloads/week](https://img.shields.io/npm/dw/${name}.svg)](https://npmjs.org/package/${name})`,
     }
     const requestedBadges = (this.assertion.badges || []) as string[]
-    const badges: string[] = requestedBadges.map(badge => BADGES[badge])
+    const badges: string[] = requestedBadges.map(badge => BADGES[badge]).filter(badge => !readme.includes(badge))
 
-    const readmePath = path.join(this.workingDir, 'README.md')
-    let readme = fs.readFileSync(readmePath, 'utf-8')
+    if (badges.length === 0) return
+
     const headerRegex = /^#\s(.*?)\n|(=*)\n/gi
     const header = readme.match(headerRegex)
     if (header) {
