@@ -10,7 +10,7 @@
   "dependencies": {
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
-    "@octokit/rest": "^16.34.1",
+    "@octokit/rest": "^18.3.0",
     "cli-ux": "^5.3.3",
     "fast-glob": "^3.2.5",
     "fs-extra": "^9.1.0",
