@@ -14,7 +14,7 @@
     "cli-ux": "^5.3.3",
     "fast-glob": "^3.2.5",
     "fs-extra": "^9.1.0",
-    "js-yaml": "^3.14.1"
+    "js-yaml": "^4.0.0"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
