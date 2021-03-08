@@ -2,7 +2,7 @@ import {Octokit} from '@octokit/rest'
 
 import {AsserterLookup} from './asserters'
 import {Leif} from './types'
-import {exec, indentLog, syncProcessArray, masterBranchName} from './utils'
+import {exec, indentLog, syncProcessArray, masterBranchName, homedir} from './utils'
 
 const GitHubClient = new Octokit({
   auth: process.env.GITHUB_OAUTH_TOKEN || process.env.GITHUB_TOKEN,
@@ -36,7 +36,7 @@ export default class SequenceService {
 
     // pre-work
     const sequenceLength = sequence.assertions.length
-    const workingDir = `${process.env.HOME}/.leif/github/${repoFullName}`
+    const workingDir = `${homedir}/.leif/github/${repoFullName}`
     const prDescription = sequence.description || `leif sequence ${sequence.id}`
     const branchName = sequence.id
     const dryRun = sequence.dryRun

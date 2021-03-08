@@ -1,4 +1,4 @@
-import {exec, indentLog, masterBranchName} from '../utils'
+import {exec, indentLog, masterBranchName, homedir} from '../utils'
 
 export interface AsserterServiceConfig {
   assertion: { apply_only_to_repos: string[] };
@@ -31,7 +31,7 @@ export default abstract class AsserterBase {
   }
 
   protected get workingDir() {
-    return `${process.env.HOME}/.leif/github/${this.repoFullName}`
+    return `${homedir}/.leif/github/${this.repoFullName}`
   }
 
   async run() {

@@ -4,6 +4,8 @@ const {exec: execz, execSync} = require('child_process')
 
 export const exec = util.promisify(execz)
 
+export const homedir = require('os').homedir()
+
 export const indentLog = (spaces: number, ...loglines: string[]) => {
   loglines.forEach(line => {
     console.log(`${''.padEnd(spaces)}${line}`)
