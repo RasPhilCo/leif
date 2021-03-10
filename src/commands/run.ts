@@ -9,7 +9,7 @@ const yaml = require('js-yaml')
 
 const readYAMLFromRelativePath = async (relativeFilepath: string) => {
   const fileContents = await fs.readFile(path.join(process.cwd(), relativeFilepath), 'utf8')
-  return yaml.safeLoad(fileContents)
+  return yaml.load(fileContents)
 }
 
 export default class Run extends Command {
