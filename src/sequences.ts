@@ -115,13 +115,21 @@ export default class SequenceService {
     if (pullReqExists || skipCreatingPR || !meta.last) return indentLog(0, '')
     indentLog(6, 'Creating PR...')
     if (!dryRun) {
-      await GitHubClient.pulls.create({
-        owner,
-        repo: repoShortName,
-        title: prDescription,
-        head: branchName,
-        base: masterMain,
-      })
+      try {
+        await GitHubClient.pulls.create({
+          owner,
+          repo: repoShortName,
+          title: prDescription,
+          head: branchName,
+          base: masterMain,
+        })
+      } catch (error) {
+        if (error.message.match(`No commits between ${masterMain} and ${branchName}`)) {
+          indentLog(8, `No commits between ${masterMain} and ${branchName}, PR will not be created.`)
+        } else {
+          throw error
+        }
+      }
     }
 
     indentLog(0, '')
