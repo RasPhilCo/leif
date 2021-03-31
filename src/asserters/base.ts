@@ -53,12 +53,7 @@ export default abstract class AsserterBase {
 
     if (this.assertion.if) {
       try {
-        await new Promise((res, rej) => {
-          exec(`cd ${this.workingDir} && ${this.assertion.if}`, (error: any, _stdout: string, _stderr: string) => {
-            if (error) rej()
-            res()
-          })
-        })
+        await exec(`cd ${this.workingDir} && ${this.assertion.if}`)
         indentLog(8, 'Passed `if` guard, continuing assertion...')
       } catch (error) {
         indentLog(8, 'Did not pass `if` guard, skipping assertion...')
