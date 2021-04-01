@@ -38,7 +38,7 @@ export default class SequenceService {
     const sequenceLength = sequence.assertions.length
     const workingDir = `${homedir}/.leif/github/${repoFullName}`
     const prDescription = sequence.description || `leif sequence ${sequence.id}`
-    const branchName = sequence.id
+    const branchName = sequence.branch_name || sequence.id
     const dryRun = sequence.dryRun
     const masterMain = masterBranchName(workingDir)
 
