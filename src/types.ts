@@ -19,6 +19,7 @@ export namespace Leif {
   export type Sequence = {
     id: string;
     description?: string;
+    branch_name?: string;
     assertions: Assertion[];
     repos: string[];
     templateDir: string;
