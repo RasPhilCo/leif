@@ -36,11 +36,45 @@ _Leif asserts explicit state on repos_.
 
 **Workflow** - A workflow marries repos with sequences, it is where users define which sequences run on which repos. Leif.yml can have one or many workflows.
 
-**Repo groups** - A logical grouping of repos in the same GitHub org, ex: core repos, documation repos, forked repos, etc.
+**Repo groups** - A logical grouping of repos in the same GitHub org, ex: core repos, documentation repos, forked repos, etc.
 
 # Example leif.yml
+```yaml
+---
+repos:
+  - rasphilco/leif
+  - group: foo-example-org
+    github_org: foo-example
+    repos:
+      - bar
+      - baz
+sequences:
+  sync-package.json:
+    description: 'sync pjson properties'
+    assertions:
+      - type: json-has-properties
+        description: 'updating properties'
+        source_relative_filepath: state/package.json
+        target_relative_filepath: package.json
+  sync-dependabot:
+    description: 'sync dependabot.yml'
+    assertions:
+      - type: file-is-exact
+        description: 'updating dependabot'
+        source_relative_filepath: state/dependabot.yml
+        target_relative_filepath: .github/dependabot.yml
 
-Coming soon.
+workflows:
+  sync-repo:
+    apply_to_repos:
+      - rasphilco/leif
+    apply_to_groups:
+      - foo-example-org
+    sequences:
+      - test-assertions
+      - sync-dependabot
+```
+
 # Assertions
 
 Coming soon.
