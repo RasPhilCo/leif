@@ -63,7 +63,7 @@ export default class Run extends Command {
         preparedWorkflows = preparedWorkflows.filter(workflow => {
           const shouldInclude = workflows.includes(workflow.id)
           if (shouldInclude) {
-            workflow.sequences = workflow.sequences.filter(sequence => sequences.includes(sequence.id))
+            workflow.sequences = workflow.sequences.filter(sequence => sequences ? sequences.includes(sequence.id) : sequence)
           }
           return shouldInclude
         })
