@@ -21,7 +21,7 @@ $ npm install -g @rasphilco/leif
 $ leif COMMAND
 running command...
 $ leif (-v|--version|version)
-@rasphilco/leif/0.9.0 darwin-x64 node-v12.14.1
+@rasphilco/leif/0.9.0 darwin-x64 node-v12.13.0
 $ leif --help [COMMAND]
 USAGE
   $ leif COMMAND
@@ -30,20 +30,23 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`leif cleanup [SCOPE]`](#leif-cleanup-scope)
+* [`leif cleanup [ORG]`](#leif-cleanup-org)
 * [`leif help [COMMAND]`](#leif-help-command)
 * [`leif run YAML`](#leif-run-yaml)
 
-## `leif cleanup [SCOPE]`
+## `leif cleanup [ORG]`
 
-remove managed repos
+remove repos from the local leif working directory
 
 ```
 USAGE
-  $ leif cleanup [SCOPE]
+  $ leif cleanup [ORG]
 
 ARGUMENTS
-  SCOPE  scope of repos to remove
+  ORG  GitHub org/username of repos to remove
+
+OPTIONS
+  -a, --all  remove all orgs
 ```
 
 _See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.9.0/src/commands/cleanup.ts)_
