@@ -13,21 +13,21 @@ multi-repo syncronization &amp; management tool
 <!-- toc -->
 * [About](#about)
 * [Definitions](#definitions)
-* [Assertion types (Assertors)](#assertions)
-* [Example leif.yml](#leif.yml)
+* [Example leif.yml](#example-leif.yml)
+* [Assertions](#assertions)
 * [CLI Usage](#usage)
 * [CLI Commands](#commands)
 <!-- tocstop -->
 # About
-Leif, best explained through its history, was born out of needs arising from managing the oclif CLI project (Leif itself is an oclif CLI).
+Leif was born out of needs arising from managing the [oclif](https://github.com/oclif) CLI project (Leif itself is an oclif CLI).
 
-The oclif GitHub organization contains roughly 50 repos. On occasion, we need to perform the same small task in every repo, like updating the open-source license file. Secondly, as a NodeJS project, a lot of the oclif repos have very similiar state (think: dependencies, package.json properties, testing configs, etc) which, over time, would drift slightly from one-another over the natural course of many folks developing them and we need to be have them all be brought back inline.
+The oclif GitHub organization contains roughly 50 repositories. On occasion, we need to perform the same small task in every repo, such as updating the open-source license file. Secondly, as a NodeJS project, a lot of the oclif repos have very similiar state (think: dependencies, package.json properties, testing configs, etc) which, over time, would drift slightly from one-another. This is natural entropy with many developers working in the project, so also occasionally we need to bring them all back into line.
 
-Leif performs these time consuming tasks for us.
+Leif performs these time consuming tasks for us. We define state changes to our repos in a `leif.yml` file, run the `leif` CLI and _assert_ them on every repo in the org within minutes. Coupled with a cron executor, like CicleCI, Leif runs on a regular candence and ensures our repos do not drift from the desired defined state. Maintenance bliss!
 
-To run Leif, you need the Leif CLI (this repo) and a leif.yml file. The leif.yml is where you will define repos from a GitHub org and assertions. An assertion is explicit state about a repo, "state" here refers to both git commitable changes and also GitHub repo properites. When run, Leif will read the provided leif.yml file and check that each repo has the defined state. If not, Leif creates a PR to the repo with the applicable changes or sets the GitHub repo property via the GitHub API, i.e. _Leif asserts explicit state on repos_.
+For you to run Leif, you need the `leif` CLI (this repo), a `leif.yml` file and a GitHub API token with read/write access to your repos. The `leif.yml` file (see the [example](#example-leif.yml) below) is where you list GitHub repos names and define assertions. An assertion is explicit state about a repo. "State", as used here, means directories, files and GitHub repo properties. When run, the `leif` CLI will read the `leif.yml` file and check that each listed repo has the defined state. If not, Leif creates a PR to the repo with the applicable changes or sets the GitHub repo property via the GitHub API.
 
-With Leif, we now define one-off changes to our repos in our leif.yml file, run the `leif` CLI and _assert_ them on every repo in the org within minutes. Coupled with a cron executor, like CicleCI, Leif can run on a regular candence and ensure repos do not drift from a desired defined state. Maintenance bliss!
+_Leif asserts explicit state on repos_.
 
 # Definitions
 **Assertion** - A user defined state on a repo. Users define assertions using of the many [Assertion types](#assertion-types). If the repo's state differs from the assertion, leif commits the changes; an Assertion becomes a single commit.
@@ -36,7 +36,15 @@ With Leif, we now define one-off changes to our repos in our leif.yml file, run 
 
 **Workflow** - A workflow marries repos with sequences, it is where users define which sequences run on which repos. Leif.yml can have one or many workflows.
 
-**Repo groups** - A logical grouping of repos in the same GitHub org, ex: Core repos, documation repos, forked repos, etc.
+**Repo groups** - A logical grouping of repos in the same GitHub org, ex: core repos, documation repos, forked repos, etc.
+
+# Example leif.yml
+
+Coming soon.
+# Assertions
+
+Coming soon.
+
 # Usage
 <!-- usage -->
 ```sh-session
