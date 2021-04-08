@@ -1,4 +1,4 @@
-import {exec, indentLog, masterBranchName, homedir} from '../utils'
+import {exec, indentLog, masterBranchName} from '../utils'
 
 export interface AsserterServiceConfig {
   assertion: { apply_only_to_repos: string[] };
@@ -6,6 +6,7 @@ export interface AsserterServiceConfig {
   repoFullName: string;
   branchName: string;
   templateDir: string;
+  workingDir: string;
 }
 
 export default abstract class AsserterBase {
@@ -21,17 +22,16 @@ export default abstract class AsserterBase {
 
   protected mainBranchName: string
 
-  constructor({assertion, repoFullName, dryRun, branchName, templateDir}: AsserterServiceConfig) {
+  protected workingDir: string
+
+  constructor({assertion, repoFullName, dryRun, branchName, templateDir, workingDir}: AsserterServiceConfig) {
     this.assertion = assertion
     this.branchName = branchName
     this.templateDir = templateDir
+    this.workingDir = workingDir
     this.dryRun = dryRun
     this.repoFullName = repoFullName
     this.mainBranchName = masterBranchName(this.workingDir)
-  }
-
-  protected get workingDir() {
-    return `${homedir}/.leif/github/${this.repoFullName}`
   }
 
   async run() {
