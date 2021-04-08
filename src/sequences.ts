@@ -81,6 +81,7 @@ export default class SequenceService {
           repoFullName,
           dryRun,
           branchName,
+          workingDir,
           templateDir: sequence.templateDir,
         })
         await asserter.run()
