@@ -48,7 +48,7 @@ const runSequences = async (sequence: Leif.Sequence) => {
   }
 }
 
-export default class RepoTest extends Command {
+export default class RunCWD extends Command {
   static description = 'run leif state workflows'
 
   static hidden = true
@@ -82,7 +82,7 @@ export default class RepoTest extends Command {
   ]
 
   async run() {
-    const {args, flags} = this.parse(RepoTest)
+    const {args, flags} = this.parse(RunCWD)
     const dir = flags.dir === '.' ? process.cwd() : flags.dir
 
     const yamlContents = await readYAMLFromRelativePath(args.yaml)
