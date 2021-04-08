@@ -49,7 +49,7 @@ const runSequences = async (sequence: Leif.Sequence) => {
 }
 
 export default class RunCWD extends Command {
-  static description = 'run leif state workflows'
+  static description = 'run a leif config on the cwd repo only (no PRs will be created)'
 
   static hidden = true
 
@@ -76,7 +76,7 @@ export default class RunCWD extends Command {
   static args = [
     {
       name: 'yaml',
-      description: 'path to a leif yaml file',
+      description: 'path to a leif config yaml file',
       required: true,
     },
   ]
