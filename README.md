@@ -19,24 +19,24 @@ multi-repo syncronization &amp; management tool
 * [CLI Commands](#commands)
 <!-- tocstop -->
 # About
-Leif was born out of needs arising from managing the [oclif](https://github.com/oclif) CLI project (Leif itself is an oclif CLI).
+Leif was born out of needs arising from managing the [oclif](https://github.com/oclif) CLI project (stylized "leif", itself an oclif CLI).
 
-The oclif GitHub organization contains roughly 50 repositories. On occasion, we need to perform the same small task in every repo, such as updating the open-source license file. Secondly, as a NodeJS project, a lot of the oclif repos have very similiar state (think: dependencies, package.json properties, testing configs, etc) which, over time, would drift slightly from one-another. This is natural entropy with many developers working in the project, so also occasionally we need to bring them all back into line.
+The oclif GitHub organization contains roughly 50 repositories. On occasion, we need to perform the same small task in every repo, such as updating the open-source license file. Secondly, as a NodeJS project, a lot of the oclif repos have very similiar state (think: dependencies, package.json properties, testing configs, etc) which, over time, drift slightly from one-another. This is natural entropy with many developers working in the project, so also occasionally we need to bring them all back into line.
 
-Leif performs these time consuming tasks for us. We define state changes to our repos in a `leif.yml` file, run the `leif` CLI and _assert_ them on every repo in the org within minutes. Coupled with a cron executor, like CicleCI, Leif runs on a regular candence and ensures our repos do not drift from the desired defined state. Maintenance bliss!
+Leif performs these time consuming tasks for us. We define state changes to our repos in a `leif.yml` file, run the `leif` CLI and _assert_ them on every repo in the org within minutes. Coupled with a cron executor, like CicleCI, leif runs on a regular candence and ensures our repos do not drift from the desired defined state. Maintenance bliss!
 
-For you to run Leif, you need the `leif` CLI (this repo), a `leif.yml` file and a GitHub API token with read/write access to your repos. The `leif.yml` file (see the [example](#example-leif.yml) below) is where you list GitHub repos names and define assertions. An assertion is explicit state about a repo. "State", as used here, means directories, files and GitHub repo properties. When run, the `leif` CLI will read the `leif.yml` file and check that each listed repo has the defined state. If not, Leif creates a PR to the repo with the applicable changes or sets the GitHub repo property via the GitHub API.
+For you to run leif, you need the `leif` CLI (this repo), a `leif.yml` file and a GitHub API token with read/write access to your repos. The `leif.yml` file (see the [example](#example-leif.yml) below) is where you list GitHub repos names and define assertions. An assertion is explicit state about a repo. "State", as used here, means directories, files and GitHub repo properties. When run, the `leif` CLI will read the `leif.yml` file and check that each listed repo has the defined state. If not, leif creates a PR to the repo with the applicable changes or sets the GitHub repo property via the GitHub API.
 
 _Leif asserts explicit state on repos_.
 
 # Definitions
-**Assertion** - A user defined state on a repo. Users define assertions using of the many [Assertion types](#assertion-types). If the repo's state differs from the assertion, leif commits the changes; an Assertion becomes a single commit.
+**assertion** - A user defined state of a repo. Users define assertions using of the many [Assertion types](#assertions). If the repo's state differs from the assertion, leif commits the changes; an assertion becomes a single commit.
 
-**Sequence** - A logical grouping of one or more assertions. Leif allows us to chain many assertions into a sequenece and run them all syncronously. Leif.yml can have one or many sequences. A Sequence becomes a PR.
+**sequence** - A logical grouping of one or more assertions. Leif allows us to chain many assertions into a sequenece and run them all syncronously. `leif.yml` can have one or many sequences. A sequence becomes a GitHub PR.
 
-**Workflow** - A workflow marries repos with sequences, it is where users define which sequences run on which repos. Leif.yml can have one or many workflows.
+**workflow** - A workflow marries repos with sequences. With workflows, users define which sequences run on which repos. `leif.yml` can have one or many workflows.
 
-**Repo groups** - A logical grouping of repos in the same GitHub org, ex: core repos, documentation repos, forked repos, etc.
+**repo groups** - A logical grouping of repos in the same GitHub org, ex: core repos, documentation repos, forked repos, etc.
 
 # Example leif.yml
 ```yaml
