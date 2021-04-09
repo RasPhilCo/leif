@@ -77,7 +77,25 @@ workflows:
 
 # Assertions
 
-Coming soon.
+* [file-does-not-exist](#type-file-does-not-exist)
+* [file-is-exact](#type-file-is-exact)
+
+#### type: file-does-not-exist
+
+Property | Example | Description
+--- | --- | ---
+description | `remove old LICENSE` | describe what is transpiring, which will become the commit message
+if | `test -e "./new/LISCENSE.txt"` | assertion only runs if this bash expression returns successfully
+target_relative_filepath (required) | `./old/LICENSE.txt` | relative filepath to target file (relative to repo root)
+#### type: file-is-exact
+
+Property | Example | Description
+--- | --- | ---
+description | `add LICENSE` | describe what is transpiring, which will become the commit message
+if | `foo` | assertion only runs if this bash expression returns successfully
+source_relative_filepath (required) | `path/to/LICENSE.txt` | relative filepath to source file (relative to the cwd where leif is ran)
+target_relative_filepath (required) | `LICENSE.txt` | relative filepath to target file (relative to repo root)
+
 
 # Usage
 <!-- usage -->
