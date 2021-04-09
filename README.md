@@ -93,7 +93,7 @@ target_relative_filepath (required) | `./old/LICENSE.txt` | relative filepath to
 Property | Example | Description
 --- | --- | ---
 description | `add LICENSE` | describe what is transpiring, which will become the commit message
-if | `foo` | assertion only runs if this bash expression returns successfully
+if | `foo` | assertion only runs if this bash expression (run at the repo root) returns successfully
 source_relative_filepath (required) | `path/to/LICENSE.txt` | relative filepath to source file (relative to the cwd where leif is ran)
 target_relative_filepath (required) | `LICENSE.txt` | relative filepath to target file (relative to repo root)
 
