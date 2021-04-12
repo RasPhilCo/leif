@@ -14,11 +14,11 @@ const readYAMLFromRelativePath = async (relativeFilepath: string) => {
   return yaml.load(fileContents)
 }
 
-const runSequences = async (sequence: Leif.Sequence) => {
+const runSequenceOnCWD = async (sequence: Leif.Sequence) => {
   const sequenceLength = sequence.assertions.length
   const branchName = sequence.branch_name || sequence.id
   const dryRun = sequence.dryRun
-  const workingDir = '.'
+  const workingDir = process.cwd()
   const masterMain = masterBranchName(workingDir)
 
   for (let i = 0; i < sequenceLength; i++) {
@@ -101,16 +101,8 @@ export default class RunCWD extends Command {
       })
     }
 
-    preparedWorkflows = preparedWorkflows.map((w: Leif.Workflow) => {
-      w.sequences = w.sequences.map(s => {
-        s.repos = ['.'] // local test
-        return s
-      })
-      return w
-    })
-
     syncProcessArray(preparedWorkflows, w => {
-      syncProcessArray(w.sequences, runSequences)
+      syncProcessArray(w.sequences, runSequenceOnCWD)
     })
   }
 }
