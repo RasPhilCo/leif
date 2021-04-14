@@ -15,8 +15,8 @@ multi-repo syncronization &amp; management tool
 * [Definitions](#definitions)
 * [Example leif.yml](#example-leifyml)
 * [Assertions](#assertions)
-* [CLI Usage](#usage)
-* [CLI Commands](#commands)
+* [Usage](#usage)
+* [Commands](#commands)
 <!-- tocstop -->
 # About
 Leif was born out of needs arising from managing the [oclif](https://github.com/oclif) CLI project (stylized "leif", itself an oclif CLI).
@@ -104,7 +104,7 @@ $ npm install -g @rasphilco/leif
 $ leif COMMAND
 running command...
 $ leif (-v|--version|version)
-@rasphilco/leif/0.9.0 darwin-x64 node-v12.13.0
+@rasphilco/leif/0.9.1 darwin-x64 node-v12.14.1
 $ leif --help [COMMAND]
 USAGE
   $ leif COMMAND
@@ -132,7 +132,7 @@ OPTIONS
   -a, --all  remove all orgs
 ```
 
-_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.9.0/src/commands/cleanup.ts)_
+_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.9.1/src/commands/cleanup.ts)_
 
 ## `leif help [COMMAND]`
 
@@ -169,5 +169,5 @@ OPTIONS
   -w, --workflow=workflow  run a specific workflow instead of all workflows
 ```
 
-_See code: [src/commands/run.ts](https://github.com/RasPhilCo/leif/blob/v0.9.0/src/commands/run.ts)_
+_See code: [src/commands/run.ts](https://github.com/RasPhilCo/leif/blob/v0.9.1/src/commands/run.ts)_
 <!-- commandsstop -->
