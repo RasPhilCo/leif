@@ -13,7 +13,7 @@ multi-repo syncronization &amp; management tool
 <!-- toc -->
 * [About](#about)
 * [Definitions](#definitions)
-* [Example leif.yml](#example-leif.yml)
+* [Example leif.yml](#example-leifyml)
 * [Assertions](#assertions)
 * [CLI Usage](#usage)
 * [CLI Commands](#commands)
