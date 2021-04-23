@@ -52,6 +52,10 @@ export default class Run extends Command {
     const dir = flags.dir === '.' ? process.cwd() : flags.dir
     const dryRun = Boolean(flags['dry-run'])
 
+    if (!dryRun && !process.env.GITHUB_OAUTH_TOKEN) {
+      this.error('Missing env var GITHUB_OAUTH_TOKEN')
+    }
+
     const runWorkflowService = async (workflowFilepath: string) => {
       const yamlContents = await readYAMLFromRelativePath(workflowFilepath)
       let preparedWorkflows = WorkflowService.workflowsFromYaml(yamlContents, dir, dryRun)
