@@ -1,7 +1,7 @@
 {
   "name": "@rasphilco/leif",
   "description": "multi-repo syncronization & management tool",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "author": "RasPhilCo @RasPhilCo",
   "bin": {
     "leif": "./bin/run"
