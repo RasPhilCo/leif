@@ -6,5 +6,8 @@
   "rules": {
     "unicorn/no-abusive-eslint-disable": "off",
     "no-await-in-loop": "off"
-  }
+  },
+  "ignorePatterns":[
+    "lib/*"
+  ]
 }
