@@ -19,7 +19,7 @@ export class JsonHasPropertiesAsserter extends AsserterBase {
     }
     for (const targetJSONPath of jsonPaths) {
       const targetJSON = require(targetJSONPath)
-      const assertedJSON = deepAssign({...targetJSON}, sourceJSON)
+      const assertedJSON = deepAssign({...targetJSON}, sourceJSON, {arrayBehavior: this.assertion.array_behavior})
       await fs.writeFile(targetJSONPath, JSON.stringify(assertedJSON, null, 2) + '\n')
     }
   }

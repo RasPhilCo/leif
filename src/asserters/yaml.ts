@@ -11,7 +11,7 @@ export class YamlHasPropertiesAsserter extends AsserterBase {
     const sourceYamlAsJson = yaml.load(await fs.readFile(path.join(this.templateDir, this.assertion.source_relative_filepath), 'utf-8')) as object
     const targetYamlAsJson = yaml.load(await fs.readFile(targetYamlPath, 'utf-8')) as object
 
-    const assertedJson = deepAssign({...targetYamlAsJson}, sourceYamlAsJson)
+    const assertedJson = deepAssign({...targetYamlAsJson}, sourceYamlAsJson, {arrayBehavior: this.assertion.array_behavior})
     const assertedYaml = yaml.dump(assertedJson, {indent: 2})
     await fs.writeFile(targetYamlPath, assertedYaml)
   }
