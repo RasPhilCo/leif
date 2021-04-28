@@ -4,11 +4,10 @@ leif
 multi-repo syncronization &amp; management tool
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/leif.svg)](https://npmjs.org/package/leif)
+[![Version](https://img.shields.io/npm/v/@rasphilco/leif.svg)](https://npmjs.org/package/@rasphilco/leif)
 [![CircleCI](https://circleci.com/gh/RasPhilCo/leif/tree/master.svg?style=shield)](https://circleci.com/gh/RasPhilCo/leif/tree/master)
-[![Codecov](https://codecov.io/gh/RasPhilCo/leif/branch/master/graph/badge.svg)](https://codecov.io/gh/RasPhilCo/leif)
-[![Downloads/week](https://img.shields.io/npm/dw/leif.svg)](https://npmjs.org/package/leif)
-[![License](https://img.shields.io/npm/l/leif.svg)](https://github.com/RasPhilCo/leif/blob/master/package.json)
+[![Downloads/week](https://img.shields.io/npm/dw/@rasphilco/leif.svg)](https://npmjs.org/package/@rasphilco/leif)
+[![License](https://img.shields.io/npm/l/@rasphilco/leif.svg)](https://github.com/RasPhilCo/leif/blob/master/package.json)
 
 <!-- toc -->
 * [About](#about)
