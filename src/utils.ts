@@ -1,4 +1,11 @@
 import * as util from 'util'
+import * as fs from 'fs-extra'
+import * as path from 'path'
+
+import {Leif} from './types'
+import WorkflowService from './workflows'
+
+const yaml = require('js-yaml')
 
 const {exec: execz, execSync} = require('child_process')
 
@@ -98,4 +105,39 @@ export function deepAssign(target: AnyObject, source: AnyObject, opts?: {arrayBe
     }
   })
   return target
+}
+
+export async function readYAMLFromRelativePath(relativeFilepath: string) {
+  const fileContents = await fs.readFile(path.join(process.cwd(), relativeFilepath), 'utf8')
+  return yaml.load(fileContents)
+}
+
+export function filterWorkflows(preparedWorkflows: Leif.Workflow[], filters: {workflows: string[]; sequences: string[]}): Leif.Workflow[] {
+  const {workflows, sequences} = filters
+  preparedWorkflows = preparedWorkflows.filter(pw => {
+    const shouldInclude = workflows.includes(pw.id)
+    if (shouldInclude && sequences.length > 0) {
+      pw.sequences = pw.sequences.filter(s => sequences.includes(s.id))
+      if (pw.sequences.length === 0) throw new Error(`Could not find any matching sequences for ${sequences}`)
+    }
+    return shouldInclude
+  })
+  if (preparedWorkflows.length === 0) throw new Error(`Could not find any matching workflows for ${workflows}`)
+  return preparedWorkflows
+}
+
+export async function prepareWorkflows(workflowFilepath: string, flags: AnyObject) {
+  const dir = flags.dir === '.' ? process.cwd() : flags.dir
+  const dryRun = Boolean(flags['dry-run'])
+
+  const yamlContents = await readYAMLFromRelativePath(workflowFilepath)
+  let preparedWorkflows = WorkflowService.workflowsFromYaml(yamlContents, dir, dryRun)
+  const workflows = flags.workflow
+  if (!flags.sequence) flags.sequence = [] // oclif should be setting an empty array, but it is not
+  const sequences = flags.sequence
+
+  if (workflows) {
+    preparedWorkflows = filterWorkflows(preparedWorkflows, {workflows, sequences})
+  }
+  return preparedWorkflows
 }
