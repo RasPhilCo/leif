@@ -83,7 +83,7 @@ export default class RunCWD extends Command {
   async run() {
     const {args, flags} = this.parse(RunCWD)
 
-    const pws = await prepareWorkflows(args.yaml, flags)
+    const pws = await prepareWorkflows(args, flags)
 
     syncProcessArray(pws, w => {
       indentLog(0, `Running workflow ${w.id}`)
