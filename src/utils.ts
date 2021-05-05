@@ -27,18 +27,73 @@ interface AnyObject {
   [key: string]: any;
 }
 
-export function deepAssign(target: AnyObject, source: AnyObject): AnyObject {
+export function deepAssign(target: AnyObject, source: AnyObject, opts?: {arrayBehavior?: 'merge' | 'concat' | 'replace' | 'unique-key-objects'}): AnyObject {
+  if (typeof target !== 'object' || typeof source !== 'object') {
+    return source
+  }
+  const behavior = opts?.arrayBehavior
+
+  function handleUniqueKeyObjectsArray(target: any, source: any) {
+    source.forEach((s: any): any => {
+      let present = false
+      const sourceKey = Object.keys(s)[0]
+      target.forEach((t: any, index: number): any => {
+        const targetKey = Object.keys(t)[0]
+        if (targetKey === sourceKey) {
+          target[index][targetKey] = deepAssign(target[index][targetKey], s[sourceKey], {arrayBehavior: 'unique-key-objects'})
+          present = true
+        }
+      })
+      if (!present) {
+        target = target.concat(s)
+      }
+    })
+    return target
+  }
+
+  function handleArray(target: any, source: any) {
+    if (behavior === 'concat') {
+      return target.concat(source)
+    }
+    if (behavior === 'merge') {
+      return source.map((v: any, i: number) => {
+        return deepAssign(target[i] || {}, v, {arrayBehavior: 'merge'})
+      })
+    }
+    if (behavior === 'unique-key-objects') {
+      const isUniqueKeyObjectsArray = target.length > 1 && target.find((t: any) => {
+        return typeof t === 'object' && Object.keys(t).length === 1
+      })
+      if (isUniqueKeyObjectsArray) {
+        return handleUniqueKeyObjectsArray(target, source)
+      }
+      // if not uniq keys, fallback to merge behavior
+      return source.map((s: any, i: number) => {
+        return deepAssign(target[i], s, {arrayBehavior: 'merge'})
+      })
+    }
+    // replace target[key] (default behavior)
+    return source
+  }
+
   Object.keys(source).forEach(k => {
-    if (typeof source[k] === 'object') {
+    if (source[k] && typeof source[k] === 'object') {
+      // source[key] value is truthy && of type object
       // eslint-disable-next-line no-negated-condition
       if (!target[k]) {
-        // doesn't exist, just assign it
+        // key doesn't exist, just assign it
         target[k] = source[k]
+      } else if (Array.isArray(target[k])) {
+        // key is array, handle specially
+        target[k] = handleArray(target[k], source[k])
       } else {
-        const newTk = deepAssign(target[k], source[k])
+        // key is obj, down the rabbithole again
+        const newTk = deepAssign(target[k], source[k], {arrayBehavior: behavior})
         target[k] = newTk
       }
     } else {
+      // source[key] value is possible falsey || not of type object
+      // replace key with source
       target[k] = source[k]
     }
   })
