@@ -135,6 +135,16 @@ export async function prepareWorkflows(workflowFilepath: string, flags: AnyObjec
   const workflows = flags.workflow
   if (!flags.sequence) flags.sequence = [] // oclif should be setting an empty array, but it is not
   const sequences = flags.sequence
+  const repos = flags.repo
+
+  if (repos) {
+    preparedWorkflows.forEach(w => {
+      w.repos = repos
+      w.sequences.forEach(s => {
+        s.repos = repos
+      })
+    })
+  }
 
   if (workflows) {
     preparedWorkflows = filterWorkflows(preparedWorkflows, {workflows, sequences})

@@ -28,6 +28,11 @@ export default class Run extends Command {
       dependsOn: ['workflow'],
       multiple: true,
     }),
+    repo: flags.string({
+      char: 'r',
+      description: 'run only on given repo(s)',
+      multiple: true,
+    }),
   }
 
   static args = [
