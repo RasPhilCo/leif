@@ -72,10 +72,9 @@ export default class SequenceService {
       indentLog(6, `Assert: ${assertion.description} (type: ${assertion.type})`)
 
       const Asserter = AsserterLookup[assertion.type]
+      if (!Asserter) throw new Error(`Invalid assertion type ${assertion.type}`)
 
       try {
-        if (!Asserter) throw new Error(`Invalid asserter type ${assertion.type}`)
-
         const asserter = new Asserter({
           assertion,
           repoFullName,
