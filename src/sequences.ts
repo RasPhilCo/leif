@@ -35,7 +35,6 @@ export default class SequenceService {
     // 6. create PR
 
     // pre-work
-    const sequenceLength = sequence.assertions.length
     const workingDir = `${homedir}/.leif/github/${repoFullName}`
     const prDescription = sequence.description || `leif sequence ${sequence.id}`
     const branchName = sequence.branch_name || sequence.id
@@ -58,38 +57,14 @@ export default class SequenceService {
 
     // 1. & 2. & 3. & 4.
     // moved inside asserter service
-
-    const meta: any = {
-      length: sequenceLength,
-    }
-    for (let i = 0; i < sequenceLength; i++) {
-      meta.current = i + 1
-      meta.first = i + 1 === 1
-      meta.last = i + 1 === sequenceLength
-      const assertion = sequence.assertions[i]
-      sequence = Object.assign(sequence, meta)
-
-      indentLog(6, `Assert: ${assertion.description} (type: ${assertion.type})`)
-
-      const Asserter = AsserterLookup[assertion.type]
-      if (!Asserter) throw new Error(`Invalid assertion type ${assertion.type}`)
-
-      try {
-        const asserter = new Asserter({
-          assertion,
-          repoFullName,
-          dryRun,
-          branchName,
-          workingDir,
-          templateDir: sequence.templateDir,
-        })
-        await asserter.run()
-      } catch (error) {
-        await exec(`git -C ${workingDir} checkout ${masterMain}`)
-        await exec(`git -C ${workingDir} branch -D ${branchName}`)
-        throw error
-      }
-    }
+    SequenceService.runAssertions(sequence.assertions, {
+      repoFullName,
+      dryRun,
+      branchName,
+      workingDir,
+      masterMain,
+      templateDir: sequence.templateDir,
+    })
 
     // 5.
     let skipCreatingPR = false
@@ -98,9 +73,7 @@ export default class SequenceService {
       if (dryRun) {
         // clean-up dryRun
         indentLog(6, '(In --dry-run mode, output below does not actually happen)')
-        if (meta.last) {
-          await exec(`git -C ${workingDir} branch -D ${branchName}`)
-        }
+        await exec(`git -C ${workingDir} branch -D ${branchName}`)
       } else {
         await exec(`git -C ${workingDir} push origin ${branchName} --no-verify`)
       }
@@ -112,7 +85,7 @@ export default class SequenceService {
     }
 
     // 6.0
-    if (pullReqExists || skipCreatingPR || !meta.last) return indentLog(0, '')
+    if (pullReqExists || skipCreatingPR) return indentLog(0, '')
     indentLog(6, 'Creating PR...')
     if (!dryRun) {
       await GitHubClient.pulls.create({
@@ -125,6 +98,39 @@ export default class SequenceService {
     }
 
     indentLog(0, '')
+  }
+
+  static async runAssertions(assertions: Leif.Assertion[], opts: {
+    repoFullName: string;
+    dryRun: boolean;
+    branchName: string;
+    workingDir: string;
+    templateDir: string;
+    masterMain: string;
+  }) {
+    const {repoFullName, dryRun, branchName, workingDir, templateDir, masterMain} = opts
+    await syncProcessArray(assertions, async assertion => {
+      indentLog(6, `Assert: ${assertion.description} (type: ${assertion.type})`)
+
+      const Asserter = AsserterLookup[assertion.type]
+      if (!Asserter) throw new Error(`Invalid assertion type ${assertion.type}`)
+
+      try {
+        const asserter = new Asserter({
+          assertion,
+          repoFullName,
+          dryRun,
+          branchName,
+          workingDir,
+          templateDir,
+        })
+        await asserter.run()
+      } catch (error) {
+        await exec(`git -C ${workingDir} checkout ${masterMain}`)
+        await exec(`git -C ${workingDir} branch -D ${branchName}`)
+        throw error
+      }
+    })
   }
 }
 

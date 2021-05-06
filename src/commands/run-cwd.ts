@@ -3,9 +3,9 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 
 import {Leif} from '../types'
-import {exec, syncProcessArray, indentLog, masterBranchName} from '../utils'
+import {syncProcessArray, masterBranchName} from '../utils'
 import WorkflowService from '../workflows'
-import {AsserterLookup} from '../asserters'
+import SequenceService from '../sequences'
 
 const yaml = require('js-yaml')
 
@@ -15,36 +15,18 @@ const readYAMLFromRelativePath = async (relativeFilepath: string) => {
 }
 
 const runSequenceOnCWD = async (sequence: Leif.Sequence) => {
-  const sequenceLength = sequence.assertions.length
   const branchName = sequence.branch_name || sequence.id
-  const dryRun = sequence.dryRun
   const workingDir = process.cwd()
   const masterMain = masterBranchName(workingDir)
 
-  for (let i = 0; i < sequenceLength; i++) {
-    const assertion = sequence.assertions[i]
-
-    indentLog(6, `Assert: ${assertion.description} (type: ${assertion.type})`)
-
-    const Asserter = AsserterLookup[assertion.type]
-    if (!Asserter) throw new Error(`Invalid assertion type ${assertion.type}`)
-
-    try {
-      const asserter = new Asserter({
-        assertion,
-        repoFullName: 'current-working-directory',
-        dryRun,
-        branchName,
-        workingDir,
-        templateDir: sequence.templateDir,
-      })
-      await asserter.run()
-    } catch (error) {
-      await exec(`git -C ${workingDir} checkout ${masterMain}`)
-      await exec(`git -C ${workingDir} branch -D ${branchName}`)
-      throw error
-    }
-  }
+  SequenceService.runAssertions(sequence.assertions, {
+    repoFullName: 'current-working-directory',
+    dryRun: true,
+    branchName,
+    workingDir,
+    masterMain,
+    templateDir: sequence.templateDir,
+  })
 }
 
 export default class RunCWD extends Command {
