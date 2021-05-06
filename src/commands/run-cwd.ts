@@ -19,7 +19,7 @@ const runSequenceOnCWD = async (sequence: Leif.Sequence) => {
   const workingDir = process.cwd()
   const masterMain = masterBranchName(workingDir)
 
-  SequenceService.runAssertions(sequence.assertions, {
+  await SequenceService.runAssertions(sequence.assertions, {
     repoFullName: 'current-working-directory',
     dryRun: true,
     branchName,

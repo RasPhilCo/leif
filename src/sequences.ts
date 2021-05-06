@@ -57,7 +57,7 @@ export default class SequenceService {
 
     // 1. & 2. & 3. & 4.
     // moved inside asserter service
-    SequenceService.runAssertions(sequence.assertions, {
+    await SequenceService.runAssertions(sequence.assertions, {
       repoFullName,
       dryRun,
       branchName,
