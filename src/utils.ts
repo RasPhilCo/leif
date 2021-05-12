@@ -126,10 +126,11 @@ export function filterWorkflows(preparedWorkflows: Leif.Workflow[], filters: {wo
   return preparedWorkflows
 }
 
-export async function prepareWorkflows(workflowFilepath: string, flags: AnyObject) {
+export async function prepareWorkflows(args: AnyObject, flags: AnyObject) {
   const dir = flags.dir === '.' ? process.cwd() : flags.dir
   const dryRun = Boolean(flags['dry-run'])
 
+  const workflowFilepath = args.yaml
   const yamlContents = await readYAMLFromRelativePath(workflowFilepath)
   let preparedWorkflows = WorkflowService.workflowsFromYaml(yamlContents, dir, dryRun)
   const workflows = flags.workflow

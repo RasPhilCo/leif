@@ -51,7 +51,7 @@ export default class Run extends Command {
       this.error('Missing env var GITHUB_OAUTH_TOKEN')
     }
 
-    const pws = await prepareWorkflows(args.yaml, flags)
+    const pws = await prepareWorkflows(args, flags)
     await WorkflowService.runMany(pws)
   }
 }
