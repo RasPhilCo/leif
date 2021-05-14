@@ -1,7 +1,7 @@
 import {Command, flags} from '@oclif/command'
 
 import {Leif} from '../types'
-import {syncProcessArray, masterBranchName} from '../utils'
+import {syncProcessArray, masterBranchName, prepareWorkflows, indentLog} from '../utils'
 import SequenceService from '../sequences'
 
 const runSequenceOnCWD = async (sequence: Leif.Sequence) => {
