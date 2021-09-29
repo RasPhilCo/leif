@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra'
-import {Command, flags} from '@oclif/command'
+import {Command, Flags} from '@oclif/core'
 import {homedir} from '../utils'
 
 export default class Cleanup extends Command {
@@ -10,7 +10,7 @@ export default class Cleanup extends Command {
   ]
 
   static flags = {
-    all: flags.boolean({char: 'a', description: 'remove all orgs'}),
+    all: Flags.boolean({char: 'a', description: 'remove all orgs'}),
   }
 
   async run() {
