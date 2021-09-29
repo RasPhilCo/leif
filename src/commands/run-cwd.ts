@@ -1,4 +1,4 @@
-import {Command, flags} from '@oclif/command'
+import {Command, Flags} from '@oclif/core'
 
 import {Leif} from '../types'
 import {syncProcessArray, masterBranchName, prepareWorkflows, indentLog} from '../utils'
@@ -25,18 +25,18 @@ export default class RunCWD extends Command {
   static hidden = true
 
   static flags = {
-    dir: flags.string({
+    dir: Flags.string({
       char: 'f',
       description: 'absolute path to directory with supporting files',
       required: true,
       default: '.',
     }),
-    workflow: flags.string({
+    workflow: Flags.string({
       char: 'w',
       description: 'run a specific workflow instead of all workflows',
       multiple: true,
     }),
-    sequence: flags.string({
+    sequence: Flags.string({
       char: 's',
       description: 'run a specific sequence in a workflow',
       dependsOn: ['workflow'],
@@ -53,7 +53,7 @@ export default class RunCWD extends Command {
   ]
 
   async run() {
-    const {args, flags} = this.parse(RunCWD)
+    const {args, flags} = await this.parse(RunCWD)
 
     const pws = await prepareWorkflows(args, flags)
 
