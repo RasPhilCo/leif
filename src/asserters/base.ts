@@ -40,7 +40,7 @@ export default abstract class AsserterBase {
     try {
       await exec(`git -C ${this.workingDir} checkout ${this.branchName}`)
       indentLog(8, `Checking out branch ${this.branchName}...`)
-    } catch (error) {
+    } catch (error: any) {
       if (error.toString().match(/did not match/)) {
         await exec(`git -C ${this.workingDir} checkout -b ${this.branchName}`)
         indentLog(8, `Creating branch ${this.branchName}...`)
@@ -55,7 +55,7 @@ export default abstract class AsserterBase {
       try {
         await exec(`cd ${this.workingDir} && ${this.assertion.if}`)
         indentLog(8, 'Passed `if` guard, continuing assertion...')
-      } catch (error) {
+      } catch (error: any) {
         indentLog(8, 'Did not pass `if` guard, skipping assertion...')
         await exec(`git -C ${this.workingDir} checkout ${this.mainBranchName}`)
         return
