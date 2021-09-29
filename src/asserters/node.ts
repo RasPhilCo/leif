@@ -97,7 +97,7 @@ export class NodeProjectDoesNotHaveDepsAsserter extends AsserterBase {
         } else if (this.assertion.manager === 'npm') {
           await exec(`cd ${this.workingDir}; npm uninstall ${depsToUninstall.join(' ')}`)
         }
-      } catch (error) {
+      } catch (error: any) {
         if (error.toString().match(/This module isn't specified in a/)) {
           // carry on
         } else {
