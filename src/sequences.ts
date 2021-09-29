@@ -125,7 +125,7 @@ export default class SequenceService {
           templateDir,
         })
         await asserter.run()
-      } catch (error) {
+      } catch (error: any) {
         await exec(`git -C ${workingDir} checkout ${masterMain}`)
         await exec(`git -C ${workingDir} branch -D ${branchName}`)
         throw error
