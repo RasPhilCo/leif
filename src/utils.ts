@@ -28,11 +28,11 @@ export const syncProcessArray = async (array: any[], fn: (x: any) => void) => {
 
 export function masterBranchName(cwd: string): string {
   try {
-    execSync(`git -C ${cwd} show-branch remotes/origin/main`)
+    execSync(`git -C ${cwd} show-branch remotes/origin/main`, {stdio: 'ignore'})
     return 'main'
   } catch (error: any) {
     try {
-      execSync(`git -C ${cwd} show-branch remotes/origin/master`)
+      execSync(`git -C ${cwd} show-branch remotes/origin/master`, {stdio: 'ignore'})
       return 'master'
     } catch (error) {
       return String(execSync(`git -C ${cwd} symbolic-ref --short HEAD`)).replace('\n', '')
