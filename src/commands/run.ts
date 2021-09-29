@@ -44,7 +44,7 @@ export default class Run extends Command {
   ]
 
   async run() {
-    const {args, flags} = this.parse(Run)
+    const {args, flags} = await this.parse(Run)
     const dryRun = Boolean(flags['dry-run'])
 
     if (!dryRun && !process.env.GITHUB_OAUTH_TOKEN) {

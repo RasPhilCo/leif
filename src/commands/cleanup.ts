@@ -14,7 +14,7 @@ export default class Cleanup extends Command {
   }
 
   async run() {
-    const {args, flags} = this.parse(Cleanup)
+    const {args, flags} = await this.parse(Cleanup)
     let localDir = `${homedir}/.leif/github`
     if (!flags.all) {
       if (!args.org) this.error('Either an org or --all must be passed')

@@ -53,7 +53,7 @@ export default class RunCWD extends Command {
   ]
 
   async run() {
-    const {args, flags} = this.parse(RunCWD)
+    const {args, flags} = await this.parse(RunCWD)
 
     const pws = await prepareWorkflows(args, flags)
 
