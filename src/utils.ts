@@ -27,7 +27,17 @@ export const syncProcessArray = async (array: any[], fn: (x: any) => void) => {
 }
 
 export function masterBranchName(cwd: string): string {
-  return String(execSync(`git -C ${cwd} symbolic-ref --short HEAD`)).replace('\n', '')
+  try {
+    execSync(`git -C ${cwd} show-branch remotes/origin/main`)
+    return 'main'
+  } catch (error: any) {
+    try {
+      execSync(`git -C ${cwd} show-branch remotes/origin/master`)
+      return 'master'
+    } catch (error) {
+      return String(execSync(`git -C ${cwd} symbolic-ref --short HEAD`)).replace('\n', '')
+    }
+  }
 }
 
 interface AnyObject {
