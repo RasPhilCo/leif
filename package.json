@@ -21,7 +21,7 @@
     "@types/chai": "^4",
     "@types/fs-extra": "^9.0.6",
     "@types/js-yaml": "^4.0.0",
-    "@types/mocha": "^8",
+    "@types/mocha": "^9",
     "@types/node": "^15",
     "chai": "^4",
     "eslint": "^7.19.0",
