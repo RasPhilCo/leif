@@ -102,8 +102,8 @@ target_relative_filepath (required) | `LICENSE.txt` | relative filepath to targe
 $ npm install -g @rasphilco/leif
 $ leif COMMAND
 running command...
-$ leif (-v|--version|version)
-@rasphilco/leif/0.11.0 darwin-x64 node-v12.14.1
+$ leif (--version)
+@rasphilco/leif/0.12.0 darwin-x64 node-v12.22.6
 $ leif --help [COMMAND]
 USAGE
   $ leif COMMAND
@@ -122,16 +122,19 @@ remove repos from the local leif working directory
 
 ```
 USAGE
-  $ leif cleanup [ORG]
+  $ leif cleanup [ORG] [-a]
 
 ARGUMENTS
   ORG  GitHub org/username of repos to remove
 
-OPTIONS
+FLAGS
   -a, --all  remove all orgs
+
+DESCRIPTION
+  remove repos from the local leif working directory
 ```
 
-_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.11.0/src/commands/cleanup.ts)_
+_See code: [src/commands/cleanup.ts](https://github.com/RasPhilCo/leif/blob/v0.12.0/src/commands/cleanup.ts)_
 
 ## `leif help [COMMAND]`
 
@@ -139,13 +142,16 @@ display help for leif
 
 ```
 USAGE
-  $ leif help [COMMAND]
+  $ leif help [COMMAND] [--all]
 
 ARGUMENTS
   COMMAND  command to show help for
 
-OPTIONS
+FLAGS
   --all  see all commands in CLI
+
+DESCRIPTION
+  display help for leif
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.1/src/commands/help.ts)_
@@ -156,18 +162,21 @@ run leif state workflows
 
 ```
 USAGE
-  $ leif run YAML
+  $ leif run [YAML] -f <value> [-d] [-s <value> -w <value>] [-r <value>]
 
 ARGUMENTS
   YAML  path to a leif yaml file
 
-OPTIONS
-  -d, --dry-run            view output without committing changes
-  -f, --dir=dir            (required) [default: .] absolute path to directory with supporting files
-  -r, --repo=repo          run only on given repo(s)
-  -s, --sequence=sequence  run a specific sequence in a workflow
-  -w, --workflow=workflow  run a specific workflow instead of all workflows
+FLAGS
+  -d, --dry-run              view output without committing changes
+  -f, --dir=<value>          (required) [default: .] absolute path to directory with supporting files
+  -r, --repo=<value>...      run only on given repo(s)
+  -s, --sequence=<value>...  run a specific sequence in a workflow
+  -w, --workflow=<value>...  run a specific workflow instead of all workflows
+
+DESCRIPTION
+  run leif state workflows
 ```
 
-_See code: [src/commands/run.ts](https://github.com/RasPhilCo/leif/blob/v0.11.0/src/commands/run.ts)_
+_See code: [src/commands/run.ts](https://github.com/RasPhilCo/leif/blob/v0.12.0/src/commands/run.ts)_
 <!-- commandsstop -->
