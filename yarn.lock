@@ -314,9 +314,9 @@
     wrap-ansi "^7.0.0"
 
 "@oclif/core@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@oclif/core/-/core-1.0.0.tgz#d9234f27368c058d9fb835dc9f57f3278af57777"
-  integrity sha512-YBpjahcSMtIsw+rgNkKLlqULc7Ste7EfhJj7d/elukhB3lj+sO0z34byPVGEGSb5zDO3Sk2GxBZw6BM0vjWqMw==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@oclif/core/-/core-1.0.2.tgz#f8f4eb12ff5adceb0a7ed262e9f5d46bbef1bf4f"
+  integrity sha512-5Qd4D+OkhCPLNML8S/LEu78CPbnd4hfsF+/7fzAnyUD4U3P+F+/Lnx/b/AnaXw6U8CPjSNO+sod0C+QpqTN13A==
   dependencies:
     "@oclif/linewrap" "^1.0.0"
     chalk "^4.1.0"
