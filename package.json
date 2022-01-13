@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
-    "@oclif/test": "^1",
+    "@oclif/test": "^2",
     "@types/chai": "^4",
     "@types/fs-extra": "^9.0.6",
     "@types/js-yaml": "^4.0.0",
