@@ -77,6 +77,7 @@ export default class SequenceService {
       } else {
         await exec(`git -C ${workingDir} push origin ${branchName} --no-verify`)
       }
+
       indentLog(6, `Pushing branch ${branchName} to GitHub...`)
     } else {
       skipCreatingPR = true

@@ -19,16 +19,16 @@ export default class RepoService {
       await exec(`git -C ${localRepoDir} fetch --prune`)
       await exec(`git -C ${localRepoDir} pull`)
       try {
-        const branches = (await exec(`git -C ${localRepoDir} branch -vv`)).stdout.split(/[\r\n]+/)
+        const branches = (await exec(`git -C ${localRepoDir} branch -vv`)).stdout.split(/[\n\r]+/)
 
         // Clean up branches by finding any that match ': gone' or that don't have a remote tracking branch and delete them
         branches.forEach(async (branch: string) => {
-          if (branch.match(/: gone/) || !branch.match(/origin\//)) {
-            const branchMatch = branch.match(/^(?:[*\s]{2})([\w/-]+)/g) // Gets the branch name from the branch string that `git branch -vv` returns
+          if (/: gone/.test(branch) || !/origin\//.test(branch)) {
+            const branchMatch = branch.match(/^[\s*]{2}([\w/-]+)/g) // Gets the branch name from the branch string that `git branch -vv` returns
             if (branchMatch) await exec(`git -C ${localRepoDir} branch ${branchMatch[0].trim()} -D`)
           }
         })
-      } catch (_) {
+      } catch {
         ux.log(`A error occured cleaning up stale branches in ${localRepoDir}`)
         ux.log('You may need to clean up branches manually')
       }

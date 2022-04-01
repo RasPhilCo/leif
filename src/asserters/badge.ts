@@ -1,4 +1,4 @@
-import * as path from 'path'
+import * as path from 'node:path'
 import * as fs from 'fs-extra'
 
 import AsserterBase from './base'
@@ -15,7 +15,7 @@ export class ReadmeHasBadgesAsserter extends AsserterBase {
   protected async uniqWork() {
     const pkgJson = require(path.join(this.workingDir, 'package.json'))
     const readmePath = path.join(this.workingDir, 'README.md')
-    let readme = fs.readFileSync(readmePath, 'utf-8')
+    let readme = fs.readFileSync(readmePath, 'utf8')
 
     const {name, license} = pkgJson
     const BADGES: Record<string, string> = {
@@ -38,6 +38,7 @@ export class ReadmeHasBadgesAsserter extends AsserterBase {
       // if we can't find the header, insert the badges as the first line
       readme = `${badges.join(' ')}\n${readme}`
     }
+
     fs.writeFileSync(readmePath, readme)
   }
 }

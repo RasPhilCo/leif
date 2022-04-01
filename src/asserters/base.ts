@@ -41,7 +41,7 @@ export default abstract class AsserterBase {
       await exec(`git -C ${this.workingDir} checkout ${this.branchName}`)
       indentLog(8, `Checking out branch ${this.branchName}...`)
     } catch (error: any) {
-      if (error.toString().match(/did not match/)) {
+      if (/did not match/.test(error.toString())) {
         await exec(`git -C ${this.workingDir} checkout -b ${this.branchName}`)
         indentLog(8, `Creating branch ${this.branchName}...`)
       } else {
@@ -55,7 +55,7 @@ export default abstract class AsserterBase {
       try {
         await exec(`cd ${this.workingDir} && ${this.assertion.if}`)
         indentLog(8, 'Passed `if` guard, continuing assertion...')
-      } catch (error: any) {
+      } catch {
         indentLog(8, 'Did not pass `if` guard, skipping assertion...')
         await exec(`git -C ${this.workingDir} checkout ${this.mainBranchName}`)
         return
@@ -80,7 +80,7 @@ export default abstract class AsserterBase {
 
     // 3.
     const {stdout} = await exec(`git -C ${this.workingDir} status`)
-    if (stdout.toString().match(/nothing to commit, working tree clean/)) {
+    if (/nothing to commit, working tree clean/.test(stdout.toString())) {
       // if working dir clean
       indentLog(8, 'Working directory clean, no changes to push...')
     } else {

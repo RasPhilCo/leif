@@ -20,6 +20,7 @@ export default class Cleanup extends Command {
       if (!args.org) this.error('Either an org or --all must be passed')
       localDir = `${localDir}/${args.org}`
     }
+
     this.log(`Removing ${localDir}`)
     await fs.ensureDir(localDir)
     await fs.rmdir(localDir)

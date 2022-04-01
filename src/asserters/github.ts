@@ -23,9 +23,11 @@ export class GithubRepoPropertyValueAsserter extends AsserterBase {
       if (this.dryRun) {
         return `In --dry-run mode: set ${property} to ${value} on ${owner}/${repo}`
       }
+
       await GitHubClient.repos.update(payload as any)
       return `Set ${property} to ${value} on ${owner}/${repo}`
     }
+
     return `The ${property} is already ${value} on ${owner}/${repo}`
   }
 }

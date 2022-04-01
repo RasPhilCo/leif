@@ -1,4 +1,4 @@
-import * as path from 'path'
+import * as path from 'node:path'
 import * as fs from 'fs-extra'
 import * as glob from 'fast-glob'
 
@@ -17,6 +17,7 @@ export class JsonHasPropertiesAsserter extends AsserterBase {
     } else {
       throw new Error('Neither target_glob_filepath nor target_relative_filepath are provided')
     }
+
     for (const targetJSONPath of jsonPaths) {
       const targetJSON = require(targetJSONPath)
       const assertedJSON = deepAssign({...targetJSON}, sourceJSON, {arrayBehavior: this.assertion.array_behavior})
