@@ -1,4 +1,4 @@
-import * as path from 'path'
+import * as path from 'node:path'
 import * as fs from 'fs-extra'
 
 import AsserterBase from './base'
@@ -57,6 +57,7 @@ export class NodeLernaProjectHasDepsAsserter extends NodeProjectHasDepsAsserter 
       console.log('No lerna.json file found, skipping...')
       return
     }
+
     const targets: string[] = []
     if (this.assertion.target_glob_filepath) {
       const fullGlob = path.join(this.workingDir, this.assertion.target_glob_filepath)
@@ -67,11 +68,7 @@ export class NodeLernaProjectHasDepsAsserter extends NodeProjectHasDepsAsserter 
     }
 
     for (const target of targets) {
-      if (target === this.workingDir) {
-        await this.doWork(target, '-W')
-      } else {
-        await this.doWork(target)
-      }
+      await (target === this.workingDir ? this.doWork(target, '-W') : this.doWork(target))
     }
   }
 }
@@ -98,7 +95,7 @@ export class NodeProjectDoesNotHaveDepsAsserter extends AsserterBase {
           await exec(`cd ${this.workingDir}; npm uninstall ${depsToUninstall.join(' ')}`)
         }
       } catch (error: any) {
-        if (error.toString().match(/This module isn't specified in a/)) {
+        if (/This module isn't specified in a/.test(error.toString())) {
           // carry on
         } else {
           throw error

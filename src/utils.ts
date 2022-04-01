@@ -1,6 +1,6 @@
-import * as util from 'util'
+import * as util from 'node:util'
 import * as fs from 'fs-extra'
-import * as path from 'path'
+import * as path from 'node:path'
 
 import {Leif} from './types'
 import WorkflowService from './workflows'
@@ -14,27 +14,26 @@ export const exec = util.promisify(execz)
 export const homedir = require('os').homedir()
 
 export const indentLog = (spaces: number, ...loglines: string[]) => {
-  loglines.forEach(line => {
+  for (const line of loglines) {
     console.log(`${''.padEnd(spaces)}${line}`)
-  })
+  }
 }
 
 export const syncProcessArray = async (array: any[], fn: (x: any) => void) => {
-  for (let i = 0; i < array.length; i++) {
-    await fn(array[i])
+  for (const element of array) {
+    await fn(element)
   }
-  return Promise.resolve()
 }
 
 export function masterBranchName(cwd: string): string {
   try {
     execSync(`git -C ${cwd} show-branch remotes/origin/main`, {stdio: 'ignore'})
     return 'main'
-  } catch (error: any) {
+  } catch {
     try {
       execSync(`git -C ${cwd} show-branch remotes/origin/master`, {stdio: 'ignore'})
       return 'master'
-    } catch (error) {
+    } catch {
       return String(execSync(`git -C ${cwd} symbolic-ref --short HEAD`)).replace('\n', '')
     }
   }
@@ -48,6 +47,7 @@ export function deepAssign(target: AnyObject, source: AnyObject, opts?: {arrayBe
   if (typeof target !== 'object' || typeof source !== 'object') {
     return source
   }
+
   const behavior = opts?.arrayBehavior
 
   function handleUniqueKeyObjectsArray(target: any, source: any) {
@@ -72,11 +72,13 @@ export function deepAssign(target: AnyObject, source: AnyObject, opts?: {arrayBe
     if (behavior === 'concat') {
       return target.concat(source)
     }
+
     if (behavior === 'merge') {
       return source.map((v: any, i: number) => {
         return deepAssign(target[i] || {}, v, {arrayBehavior: 'merge'})
       })
     }
+
     if (behavior === 'unique-key-objects') {
       const isUniqueKeyObjectsArray = target.length > 1 && target.find((t: any) => {
         return typeof t === 'object' && Object.keys(t).length === 1
@@ -84,19 +86,21 @@ export function deepAssign(target: AnyObject, source: AnyObject, opts?: {arrayBe
       if (isUniqueKeyObjectsArray) {
         return handleUniqueKeyObjectsArray(target, source)
       }
+
       // if not uniq keys, fallback to merge behavior
       return source.map((s: any, i: number) => {
         return deepAssign(target[i], s, {arrayBehavior: 'merge'})
       })
     }
+
     // replace target[key] (default behavior)
     return source
   }
 
-  Object.keys(source).forEach(k => {
+  for (const k of Object.keys(source)) {
     if (source[k] && typeof source[k] === 'object') {
       // source[key] value is truthy && of type object
-      // eslint-disable-next-line no-negated-condition
+
       if (!target[k]) {
         // key doesn't exist, just assign it
         target[k] = source[k]
@@ -113,7 +117,8 @@ export function deepAssign(target: AnyObject, source: AnyObject, opts?: {arrayBe
       // replace key with source
       target[k] = source[k]
     }
-  })
+  }
+
   return target
 }
 
@@ -130,6 +135,7 @@ export function filterWorkflows(preparedWorkflows: Leif.Workflow[], filters: {wo
       pw.sequences = pw.sequences.filter(s => sequences.includes(s.id))
       if (pw.sequences.length === 0) throw new Error(`Could not find any matching sequences for ${sequences}`)
     }
+
     return shouldInclude
   })
   if (preparedWorkflows.length === 0) throw new Error(`Could not find any matching workflows for ${workflows}`)
@@ -149,16 +155,17 @@ export async function prepareWorkflows(args: AnyObject, flags: AnyObject) {
   const repos = flags.repo
 
   if (repos) {
-    preparedWorkflows.forEach(w => {
+    for (const w of preparedWorkflows) {
       w.repos = repos
-      w.sequences.forEach(s => {
+      for (const s of w.sequences) {
         s.repos = repos
-      })
-    })
+      }
+    }
   }
 
   if (workflows) {
     preparedWorkflows = filterWorkflows(preparedWorkflows, {workflows, sequences})
   }
+
   return preparedWorkflows
 }
