@@ -3,7 +3,7 @@ import {GithubRepoPropertyValueAsserter} from './github'
 import {JsonHasPropertiesAsserter} from './json'
 import {ReadmeHasBadgesAsserter} from './badge'
 import {YamlHasPropertiesAsserter} from './yaml'
-import {RunScriptAsserter} from './script'
+import {RunCommandsAsserter} from './script'
 import {
   NodeProjectHasDepsAsserter,
   NodeProjectDoesNotHaveDepsAsserter,
@@ -20,5 +20,5 @@ export const AsserterLookup: { [key: string]: any } = {
   'node-project-has-deps': NodeProjectHasDepsAsserter,
   'readme-has-badges': ReadmeHasBadgesAsserter,
   'yaml-has-properties': YamlHasPropertiesAsserter,
-  'run-script': RunScriptAsserter,
+  'run-commands': RunCommandsAsserter,
 }

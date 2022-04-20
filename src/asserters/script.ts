@@ -1,22 +1,22 @@
-import * as path from 'path'
-
 import AsserterBase from './base'
 import {exec} from '../utils'
 
-export class RunScriptAsserter extends AsserterBase {
+export class RunCommandsAsserter extends AsserterBase {
   protected async uniqWork() {
-    let command = this.assertion.command
-
-    if (this.assertion.args) {
-      command += ` ${this.assertion.args.join(' ')}`
+    if (!this.assertion.commands) {
+      throw new Error(`No commands were provided in the sequence.`)
     }
 
-    command += ` ${path.join(this.templateDir, this.assertion.script_relative_filepath)}`
+    const commands: string[] = Array.isArray(this.assertion.commands) ?
+      this.assertion.commands :
+      [this.assertion.commands]
 
-    try {
-      await exec(command, {cwd: this.workingDir})
-    } catch (err) {
-      throw  err
+    for (let cmd of commands) {
+      try {
+        await exec(cmd, {cwd: this.workingDir})
+      } catch(err) {
+        throw err
+      }
     }
   }
 }
